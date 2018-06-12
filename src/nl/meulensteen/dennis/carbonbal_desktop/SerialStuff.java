@@ -22,7 +22,7 @@ import java.util.List;
 public class SerialStuff {
 
     static final String FILENAME = "data.txt";
-    private static final boolean USE_ARDUINO = false;
+    private static final boolean USE_ARDUINO = true;
 
     private static SerialStuff instance;
     private boolean isGettingTheData = false;
@@ -80,14 +80,15 @@ public class SerialStuff {
                         this.arrayOfTuple = getTuples(line)
                 );
 
-                Thread.sleep(3);
+               // Thread.sleep(3);
 
                 if (USE_ARDUINO) {
-                    while (!(sp.getInputStream().read() == (int) 0xfe)) {
-                        //do nothing
+                    while (!(sp.getInputStream().read() == (int) 0xfd)) {
+                        //Thread.sleep(1);
                     }
                     try {
                         sp.getOutputStream().write(packet);
+                        sp.getOutputStream().flush();
                         System.out.println(line);
 
                     } catch (IOException e) {
@@ -114,12 +115,21 @@ public class SerialStuff {
         return;
     }
 
-    private static Tuple[] getTuples(String line) {
-        final Double now = new Double(System.currentTimeMillis());
+    private Double lastTime = 0.0;
+    private Double seconds = 0.0;
+    
+    private Tuple[] getTuples(String line) {
+        Double now;
+       
+        String[] numbers = line.split(",");
+    
+        Double time = Double.parseDouble(numbers[0]);
+        if (time < lastTime) seconds++;
+        lastTime = time;
+        now = (seconds*1000.0)+time;
+        
         Tuple[] tuples = {new Tuple(now, 0.0), new Tuple(now, 0.0),
             new Tuple(now, 0.0), new Tuple(now, 0.0)};
-
-        String[] numbers = line.split(",");
 
         for (int i = 1; i < 5; i++) {
             tuples[i - 1].value = Double.parseDouble(numbers[i]);
@@ -128,27 +138,26 @@ public class SerialStuff {
     }
 
     private static byte[] getPacket(String line) {
-        byte[] packet = new byte[10];
-        packet[0] = (byte) 0xff;//start bytes per row
-        packet[1] = (byte) 0x01;//start byte 2
+        byte[] packet = new byte[9];
+        packet[0] = (byte) 0xfe;//start bytes per row
 
         String[] numbers = line.split(",");
-        int packetIndex = 1;
+        int packetIndex = 0;
         int data;
-        int mask = 0xff;
+        int mask = 0b01111111;
         for (int i = 1; i < numbers.length; i++) {
             data = Integer.parseInt(numbers[i]);
-            packet[++packetIndex] = (byte) (data >>> 8);
-            packet[++packetIndex] = (byte) (data & mask);
+            packet[++packetIndex] = (byte) (data >>> 7);
+            packet[++packetIndex] = (byte) (data & mask);//only allow the lowest 7 bits
         }
         return packet;
     }
 
     private boolean openSerialPort() throws InterruptedException {
         sp = SerialPort.getCommPort("/dev/ttyUSB0");
-        sp.setComPortParameters(38400, 8, 1, 0);
-        sp.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_BLOCKING, 0, 0);
-
+        sp.setComPortParameters(115200, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
+        sp.setComPortTimeouts(SerialPort.TIMEOUT_SCANNER, 65535, 65535);
+        sp.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
         if (sp.openPort()) {
             System.out.println("Port is open, wait for Arduino DTR reboot");
             Thread.sleep(2000);
