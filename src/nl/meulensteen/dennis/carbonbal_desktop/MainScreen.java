@@ -107,7 +107,7 @@ public class MainScreen extends JFrame implements ActionListener {
             Runnable serialWorker = () -> {
                 try {
                     SerialStuff.getInstance().getTheData();
-                } catch (InterruptedException | IOException ex) {
+               } catch (InterruptedException ex) {
                     Logger.getLogger(XYLineChart.class.getName()).log(Level.SEVERE, null, ex);
                 }
             };

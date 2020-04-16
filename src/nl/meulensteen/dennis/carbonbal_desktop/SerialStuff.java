@@ -6,14 +6,20 @@
 package nl.meulensteen.dennis.carbonbal_desktop;
 
 import com.fazecast.jSerialComm.SerialPort;
+import com.fazecast.jSerialComm.SerialPortEvent;
+import com.fazecast.jSerialComm.SerialPortMessageListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -33,6 +39,7 @@ public class SerialStuff {
     private Tuple[] arrayOfTuple = {new Tuple(1.0, 0.0), new Tuple(1.0, 0.0), new Tuple(1.0, 0.0), new Tuple(1.0, 0.0)};
 
     private SerialPort sp;
+    private Integer counter;
 
     private SerialStuff() {
     }
@@ -56,86 +63,13 @@ public class SerialStuff {
         listener.add(newListener);
     }
 
-    protected void getTheData() throws InterruptedException, IOException {
-
-        if (USE_ARDUINO && !openSerialPort()) {
-            return;
-        };
-
-        try {
-            fr = new FileReader(FILENAME);
-            br = new BufferedReader(fr);
-
-            String line;
-            byte[] myByte = {0};
-            int errCounter = 0;
-            while ((line = br.readLine()) != null) {
-                if (USE_ARDUINO) {
-                    packet = getPacket(line);
-                }
-
-                notifyListeners(
-                        "tuples",
-                        this.arrayOfTuple,
-                        this.arrayOfTuple = getTuples(line)
-                );
-
-               // Thread.sleep(3);
-
-                if (USE_ARDUINO) {
-                    while (!(sp.getInputStream().read() == (int) 0xfd)) {
-                        //Thread.sleep(1);
-                    }
-                    try {
-                        sp.getOutputStream().write(packet);
-                        sp.getOutputStream().flush();
-                        System.out.println(line);
-
-                    } catch (IOException e) {
-                        System.out.println("Serial packet write error #" + errCounter);
-                    }
-                }
-            }
-            if (USE_ARDUINO) {
-                sp.getOutputStream().close();
-                sp.closePort();
-            }
-
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found: " + FILENAME);
-        } catch (IOException e) {
-            System.out.println("Something went wrong opening file");
-            e.printStackTrace();
-        } finally {
-            if (USE_ARDUINO) {
-                sp.closePort();
-            }
-        }
-
+    protected void getTheData() throws InterruptedException {
+        openSerialPort();
         return;
     }
 
     private Double lastTime = 0.0;
     private Double seconds = 0.0;
-    
-    private Tuple[] getTuples(String line) {
-        Double now;
-       
-        String[] numbers = line.split(",");
-    
-        Double time = Double.parseDouble(numbers[0]);
-        if (time < lastTime) seconds++;
-        lastTime = time;
-        now = (seconds*1000.0)+time;
-        
-        Tuple[] tuples = {new Tuple(now, 0.0), new Tuple(now, 0.0),
-            new Tuple(now, 0.0), new Tuple(now, 0.0)};
-
-        for (int i = 1; i < 5; i++) {
-            tuples[i - 1].value = Double.parseDouble(numbers[i]);
-        }
-        return tuples;
-    }
 
     private static byte[] getPacket(String line) {
         byte[] packet = new byte[9];
@@ -159,13 +93,95 @@ public class SerialStuff {
         sp.setComPortTimeouts(SerialPort.TIMEOUT_SCANNER, 65535, 65535);
         sp.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
         if (sp.openPort()) {
-            System.out.println("Port is open, wait for Arduino DTR reboot");
+            System.out.println("Port is open, wait 2S. for Arduino DTR reboot");
             Thread.sleep(2000);
+            MessageListener listener = new MessageListener();
+            sp.addDataListener(listener);
         } else {
             System.out.println("Failed to open port :(");
             return false;
         }
+        try {
+            sp.getOutputStream().write(0xFC); //go to data dump mode
+        } catch (IOException ex) {
+            Logger.getLogger(SerialStuff.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return true;
+    }
+
+    public final class MessageListener implements SerialPortMessageListener {
+
+        int counter = 0;
+        List<Double> averages = Arrays.asList(0.0, 0.0, 0.0, 0.0);
+        
+        @Override
+        public int getListeningEvents() {
+            return SerialPort.LISTENING_EVENT_DATA_RECEIVED;
+        }
+
+        @Override
+        public byte[] getMessageDelimiter() {
+            return new byte[]{(byte) 0xFD};
+        }
+
+        @Override
+        public boolean delimiterIndicatesEndOfMessage() {
+            return true;
+        }
+
+        @Override
+        public void serialEvent(SerialPortEvent event) {
+            byte[] delimitedMessage = event.getReceivedData();
+
+            List<Integer> intValues = parseValues(delimitedMessage);
+
+            if (null != intValues) averages = calculateAverages(averages, intValues);
+
+            counter++;
+            if ((counter % 33) == 0) {
+
+                notifyListeners(
+                        "tuples",
+                        arrayOfTuple,
+                        arrayOfTuple = getTuples(averages)
+                );
+
+            }
+        }
+
+        private List<Double> calculateAverages(List<Double> averages, List<Integer> intValues) {
+            
+            for(int i=0;i<4;i++){
+                averages.set(i, averages.get(i) + ( intValues.get(i) - averages.get(i)) / 100);
+            }
+            return averages;
+        }
+
+        List<Integer> parseValues(byte[] numbers) {
+            int intValue;
+            
+            if(numbers.length < 9) return null;
+            
+            List<Integer> values = new ArrayList(4);
+            
+            for (int i = 0; i < 8; i++) {
+                intValue = ((int) numbers[i]) << 8;
+                intValue |= Byte.toUnsignedInt(numbers[i + 1]);
+
+                values.add(intValue);
+                i++;
+            }
+            return values;
+        }
+
+        Tuple[] getTuples(List<Double> averages) {
+            Double now = Double.valueOf(Instant.now().getNano()/1000);
+            
+            Tuple[] tuples = {new Tuple(now, averages.get(0)), new Tuple(now, averages.get(1)),
+                new Tuple(now, averages.get(2)), new Tuple(now, averages.get(3))};
+            return tuples;
+        }
+
     }
 
 }
