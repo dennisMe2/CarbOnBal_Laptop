@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop;
+package nl.meulensteen.dennis.carbonbal_desktop.view;
 
+import nl.meulensteen.dennis.carbonbal_desktop.model.Tuple;
+import nl.meulensteen.dennis.carbonbal_desktop.comms.SerialStuff;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -12,9 +14,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -48,15 +52,15 @@ public class XYLineChart extends JFrame implements ActionListener, PropertyChang
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        SerialStuff.getInstance().addChangeListener(this);
+        Dispatcher.getInstance().addIntegerChangeListener(this);
 
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        Tuple[] newValues = (Tuple[]) event.getNewValue();
+        List<Tuple<Integer>> newValues = (List<Tuple<Integer>>) event.getNewValue();
 
-        this.series1.addOrUpdate(newValues[0].time, newValues[0].value);
+        this.series1.addOrUpdate(newValues.get(0).time.doubleValue(), newValues.get(0).value.doubleValue());
     }
 
     private JPanel createChartPanel() {

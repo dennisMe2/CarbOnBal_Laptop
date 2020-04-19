@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop;
+package nl.meulensteen.dennis.carbonbal_desktop.model;
 
 
-public class Tuple {
-    public Double time;
-    public Double value;
+public class Tuple<T> {
+    public T time;
+    public T value;
     
-    public Tuple(Double time, Double value){
+    public Tuple(T time, T value){
         this.time=time;
         this.value=value;
     }

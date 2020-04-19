@@ -3,40 +3,25 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop;
+package nl.meulensteen.dennis.carbonbal_desktop.view;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
+import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
+import nl.meulensteen.dennis.carbonbal_desktop.model.Tuple;
 
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.MeterPlot;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.Range;
 import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.general.Dataset;
 import org.jfree.data.general.DefaultValueDataset;
-import org.jfree.data.time.Millisecond;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 
 /**
  * This program demonstrates how to draw XY line chart with XYDataset using
@@ -47,7 +32,6 @@ import org.jfree.data.xy.XYSeriesCollection;
  */
 public class MeterChart extends JFrame implements PropertyChangeListener {
     private CategoryDataset dataset;
-    private SerialStuff serialStuff;
     private DefaultValueDataset[] models = {null,null,null,null};
 
     public Double data1;
@@ -65,14 +49,14 @@ public class MeterChart extends JFrame implements PropertyChangeListener {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        SerialStuff.getInstance().addChangeListener(this);
+        Dispatcher.getInstance().addChangeListener(this);
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        Tuple[] newValues = (Tuple[]) event.getNewValue();
+        List<Tuple<Double>> newValues = (List<Tuple<Double>>) event.getNewValue();
 
-        for (int i=0;i<4;i++) models[i].setValue(newValues[i].value);
+        for (int i=0;i<4;i++) models[i].setValue(newValues.get(i).value);
 
     }
 

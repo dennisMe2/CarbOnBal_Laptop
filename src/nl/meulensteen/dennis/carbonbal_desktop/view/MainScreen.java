@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop;
+package nl.meulensteen.dennis.carbonbal_desktop.view;
 
+import nl.meulensteen.dennis.carbonbal_desktop.comms.SerialStuff;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -106,7 +107,7 @@ public class MainScreen extends JFrame implements ActionListener {
         if (cmd.equals("Start Serial")) {
             Runnable serialWorker = () -> {
                 try {
-                    SerialStuff.getInstance().getTheData();
+                    SerialStuff.getInstance().initSerialComms();
                } catch (InterruptedException ex) {
                     Logger.getLogger(XYLineChart.class.getName()).log(Level.SEVERE, null, ex);
                 }

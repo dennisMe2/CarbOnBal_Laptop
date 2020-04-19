@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop;
+package nl.meulensteen.dennis.carbonbal_desktop.control;
 
+import nl.meulensteen.dennis.carbonbal_desktop.view.MainScreen;
 import java.io.IOException;
 import javax.swing.SwingUtilities;
 
@@ -16,6 +17,8 @@ public class Main {
             MainScreen mainScreen = new MainScreen();
             mainScreen.setVisible(true);
         });
+        
+        
     }
 
 }
