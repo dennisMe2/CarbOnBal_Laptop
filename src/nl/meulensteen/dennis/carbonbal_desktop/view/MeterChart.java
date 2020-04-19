@@ -7,14 +7,17 @@ package nl.meulensteen.dennis.carbonbal_desktop.view;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
-import nl.meulensteen.dennis.carbonbal_desktop.model.Tuple;
+import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -41,20 +44,39 @@ public class MeterChart extends JFrame implements PropertyChangeListener {
         this.setLayout(new GridLayout());
         JPanel[] chartPanel = {null,null,null,null};
         
+        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+        
+        this.setSize(Integer.valueOf(prefs.get("METER_CHART_SCREEN_WIDTH", String.valueOf(640))), Integer.valueOf(prefs.get("METER_CHART_SCREEN_HEIGHT", String.valueOf(480))));
+        this.setLocation(Integer.valueOf(prefs.get("METER_CHART_SCREEN_X_POS", String.valueOf(320))), Integer.valueOf(prefs.get("METER_CHART_SCREEN_Y_POS", String.valueOf(240)))); 
+    
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                prefs.put("METER_CHART_SCREEN_WIDTH", String.valueOf(e.getComponent().getSize().width));
+                prefs.put("METER_CHART_SCREEN_HEIGHT", String.valueOf(e.getComponent().getSize().height));
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                prefs.put("METER_CHART_SCREEN_X_POS", String.valueOf(e.getComponent().getLocation().x));
+                prefs.put("METER_CHART_SCREEN_Y_POS", String.valueOf(e.getComponent().getLocation().y));
+            }
+        });
+
+        
         for (int i=0;i<4;i++) {
             chartPanel[i] = createChartPanel(i);
             add(chartPanel[i], BorderLayout.CENTER);
         }
-        setSize( 1280,320);
+       
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-
+       
         Dispatcher.getInstance().addChangeListener(this);
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        List<Tuple<Double>> newValues = (List<Tuple<Double>>) event.getNewValue();
+        List<TimeValue<Double>> newValues = (List<TimeValue<Double>>) event.getNewValue();
 
         for (int i=0;i<4;i++) models[i].setValue(newValues.get(i).value);
 

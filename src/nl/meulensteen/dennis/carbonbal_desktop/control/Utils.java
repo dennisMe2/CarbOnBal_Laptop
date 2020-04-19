@@ -5,7 +5,7 @@
  */
 package nl.meulensteen.dennis.carbonbal_desktop.control;
 
-import nl.meulensteen.dennis.carbonbal_desktop.model.Tuple;
+import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,41 +16,41 @@ import java.util.List;
  */
 public class Utils {
 
-    public static List<Double> calculateAverages(List<Double> averages, List<Tuple<Integer>> intValues) {
+    public static List<Double> calculateAverages(List<Double> averages, List<TimeValue<Integer>> intValues) {
         for (int i = 0; i < 4; i++) {
             averages.set(i, averages.get(i) + (intValues.get(i).value - averages.get(i)) / 100);
         }
         return averages;
     }
     
-    public static Tuple[] getAveragedTuples(int counter, List<Double> averages) {
+    public static TimeValue[] getAveragedTimeValues(int counter, List<Double> averages) {
         Double now = Double.valueOf(counter);
 
-        Tuple[] tuples = {new Tuple(now, averages.get(0)), new Tuple(now, averages.get(1)),
-            new Tuple(now, averages.get(2)), new Tuple(now, averages.get(3))};
+        TimeValue[] tuples = {new TimeValue(now, averages.get(0)), new TimeValue(now, averages.get(1)),
+            new TimeValue(now, averages.get(2)), new TimeValue(now, averages.get(3))};
         return tuples;
     }
 
-    public static List<Tuple<Integer>> getRawTuples(Integer counter, List<Integer> averages) {
-        List<Tuple<Integer>> tuples = new ArrayList(4);
+    public static List<TimeValue<Integer>> getRawTimeValues(Integer counter, List<Integer> averages) {
+        List<TimeValue<Integer>> tuples = new ArrayList(4);
         
-        tuples.add(new Tuple<Integer>(counter, averages.get(0)));
-        tuples.add(new Tuple<Integer>(counter, averages.get(1)));
-        tuples.add(new Tuple<Integer>(counter, averages.get(2)));
-        tuples.add(new Tuple<Integer>(counter, averages.get(3)));
+        tuples.add(new TimeValue<Integer>(counter, averages.get(0)));
+        tuples.add(new TimeValue<Integer>(counter, averages.get(1)));
+        tuples.add(new TimeValue<Integer>(counter, averages.get(2)));
+        tuples.add(new TimeValue<Integer>(counter, averages.get(3)));
     
         return tuples;
     }
     
-    public static List<Tuple<Double>> getTuples(Integer counter, List<Double> averages) {
+    public static List<TimeValue<Double>> getTimeValues(Integer counter, List<Double> averages) {
         Double now = Double.valueOf(counter);
 
-        List<Tuple<Double>> tuples = new ArrayList<>();
+        List<TimeValue<Double>> tuples = new ArrayList<>();
         {
-            tuples.add(new Tuple(now, averages.get(0)));
-            tuples.add(new Tuple(now, averages.get(1)));
-            tuples.add(new Tuple(now, averages.get(2)));
-            tuples.add(new Tuple(now, averages.get(3)));
+            tuples.add(new TimeValue(now, averages.get(0)));
+            tuples.add(new TimeValue(now, averages.get(1)));
+            tuples.add(new TimeValue(now, averages.get(2)));
+            tuples.add(new TimeValue(now, averages.get(3)));
         };
         return tuples;
     }

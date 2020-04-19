@@ -9,9 +9,12 @@ import nl.meulensteen.dennis.carbonbal_desktop.comms.SerialStuff;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -29,7 +32,26 @@ public class MainScreen extends JFrame implements ActionListener {
         this.setSize(200, 700);
         this.setTitle("CarbOnBal Desktop");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(640, 400);
+        
+        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+        
+        this.setSize(Integer.valueOf(prefs.get("MAIN_SCREEN_WIDTH", String.valueOf(640))), Integer.valueOf(prefs.get("MAIN_SCREEN_HEIGHT", String.valueOf(480))));
+        this.setLocation(Integer.valueOf(prefs.get("MAIN_SCREEN_X_POS", String.valueOf(320))), Integer.valueOf(prefs.get("MAIN_SCREEN_Y_POS", String.valueOf(240)))); 
+    
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                prefs.put("MAIN_SCREEN_WIDTH", String.valueOf(e.getComponent().getSize().width));
+                prefs.put("MAIN_SCREEN_HEIGHT", String.valueOf(e.getComponent().getSize().height));
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                prefs.put("MAIN_SCREEN_X_POS", String.valueOf(e.getComponent().getLocation().x));
+                prefs.put("MAIN_SCREEN_Y_POS", String.valueOf(e.getComponent().getLocation().y));
+            }
+        });
+
 
         //Creating the MenuBar and adding components
         JMenuBar menuBar = new JMenuBar();
@@ -41,11 +63,15 @@ public class MainScreen extends JFrame implements ActionListener {
         menuBar.add(menuDisplay);
         menuBar.add(menuHelp);
         JMenuItem menuItemOpen = new JMenuItem("Open");
-        JMenuItem menuItemStartSerial = new JMenuItem("Start Serial");
+        JMenuItem menuItemSelectSerial = new JMenuItem("SelectSerialPort");
+        menuItemSelectSerial.addActionListener(this);
+        
+        JMenuItem menuItemStartSerial = new JMenuItem("Connect CarbOnBal");
         menuItemStartSerial.addActionListener(this);
 
         JMenuItem menuItemSaveAs = new JMenuItem("Save as");
         menuFile.add(menuItemOpen);
+        menuFile.add(menuItemSelectSerial);
         menuFile.add(menuItemStartSerial);
         menuFile.add(menuItemSaveAs);
 
@@ -104,9 +130,16 @@ public class MainScreen extends JFrame implements ActionListener {
                 chart.setVisible(true);
             });
         }
-        if (cmd.equals("Start Serial")) {
+        //"SelectSerialPort" 
+        if (cmd.equals("SelectSerialPort")) {
+        
+            
+        }
+        
+        if (cmd.equals("Connect CarbOnBal")) {
             Runnable serialWorker = () -> {
                 try {
+                    //SerialStuff.getInstance().selectSerialPort();
                     SerialStuff.getInstance().initSerialComms();
                } catch (InterruptedException ex) {
                     Logger.getLogger(XYLineChart.class.getName()).log(Level.SEVERE, null, ex);

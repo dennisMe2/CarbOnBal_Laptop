@@ -5,16 +5,19 @@
  */
 package nl.meulensteen.dennis.carbonbal_desktop.view;
 
-import nl.meulensteen.dennis.carbonbal_desktop.model.Tuple;
+import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
 import nl.meulensteen.dennis.carbonbal_desktop.comms.SerialStuff;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
+import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -45,20 +48,37 @@ public class XYLineChart extends JFrame implements ActionListener, PropertyChang
     public XYLineChart() {
         super("XY Line Chart Example with JFreechart");
 
+
         JPanel chartPanel = createChartPanel();
         add(chartPanel, BorderLayout.CENTER);
 
-        setSize(640, 480);
+        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+        
+        this.setSize(Integer.valueOf(prefs.get("LINE_CHART_SCREEN_WIDTH", String.valueOf(640))), Integer.valueOf(prefs.get("LINE_CHART_SCREEN_HEIGHT", String.valueOf(480))));
+        this.setLocation(Integer.valueOf(prefs.get("LINE_CHART_SCREEN_X_POS", String.valueOf(320))), Integer.valueOf(prefs.get("LINE_CHART_SCREEN_Y_POS", String.valueOf(240)))); 
+    
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                prefs.put("LINE_CHART_SCREEN_WIDTH", String.valueOf(e.getComponent().getSize().width));
+                prefs.put("LINE_CHART_SCREEN_HEIGHT", String.valueOf(e.getComponent().getSize().height));
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                prefs.put("LINE_CHART_SCREEN_X_POS", String.valueOf(e.getComponent().getLocation().x));
+                prefs.put("LINE_CHART_SCREEN_Y_POS", String.valueOf(e.getComponent().getLocation().y));
+            }
+        });
+        
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-
         Dispatcher.getInstance().addIntegerChangeListener(this);
-
     }
 
+    
     @Override
     public void propertyChange(PropertyChangeEvent event) {
-        List<Tuple<Integer>> newValues = (List<Tuple<Integer>>) event.getNewValue();
+        List<TimeValue<Integer>> newValues = (List<TimeValue<Integer>>) event.getNewValue();
 
         this.series1.addOrUpdate(newValues.get(0).time.doubleValue(), newValues.get(0).value.doubleValue());
     }

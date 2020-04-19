@@ -6,11 +6,11 @@
 package nl.meulensteen.dennis.carbonbal_desktop.model;
 
 
-public class Tuple<T> {
+public class TimeValue<T> {
     public T time;
     public T value;
     
-    public Tuple(T time, T value){
+    public TimeValue(T time, T value){
         this.time=time;
         this.value=value;
     }

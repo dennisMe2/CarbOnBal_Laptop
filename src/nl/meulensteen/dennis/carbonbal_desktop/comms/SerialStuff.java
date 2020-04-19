@@ -8,16 +8,12 @@ package nl.meulensteen.dennis.carbonbal_desktop.comms;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortMessageListener;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
 import nl.meulensteen.dennis.carbonbal_desktop.control.Utils;
-import nl.meulensteen.dennis.carbonbal_desktop.model.Tuple;
 import static nl.meulensteen.dennis.carbonbal_desktop.control.Utils.parseValues;
 
 /**
@@ -25,13 +21,7 @@ import static nl.meulensteen.dennis.carbonbal_desktop.control.Utils.parseValues;
  * @author dmeulensteen
  */
 public class SerialStuff {
-
-    static final String FILENAME = "data.txt";
     private static SerialStuff instance;
-
-    BufferedReader br = null;
-    FileReader fr = null;
-    private List<Tuple<Integer>> tuples;
     private SerialPort sp;
     private final Dispatcher dispatcher = Dispatcher.getInstance();
     
@@ -48,6 +38,13 @@ public class SerialStuff {
     public void initSerialComms() throws InterruptedException {
         openSerialPort();
         return;
+    }
+    
+    public boolean selectSerialPort(){
+        SerialPort[] portsAvailable = SerialPort.getCommPorts();
+        
+       
+        return true;
     }
 
     private boolean openSerialPort() throws InterruptedException {
@@ -73,9 +70,7 @@ public class SerialStuff {
     }
 
     public final class MessageListener implements SerialPortMessageListener {
-
         Integer counter = 0;
-        List<Double> averages = Arrays.asList(0.0, 0.0, 0.0, 0.0);
 
         @Override
         public int getListeningEvents() {
@@ -101,7 +96,7 @@ public class SerialStuff {
             if(null == intValues) return;
             
             counter++;
-            dispatcher.processNewValues( tuples = Utils.getRawTuples(counter, intValues) );
+            dispatcher.processNewValues( Utils.getRawTimeValues(counter, intValues) );
         }
 
     }
