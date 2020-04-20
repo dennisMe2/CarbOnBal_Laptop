@@ -81,6 +81,9 @@ public class XYLineChart extends JFrame implements ActionListener, PropertyChang
         List<TimeValue<Integer>> newValues = (List<TimeValue<Integer>>) event.getNewValue();
 
         this.series1.addOrUpdate(newValues.get(0).time.doubleValue(), newValues.get(0).value.doubleValue());
+        this.series2.addOrUpdate(newValues.get(1).time.doubleValue(), newValues.get(1).value.doubleValue());
+        this.series3.addOrUpdate(newValues.get(2).time.doubleValue(), newValues.get(2).value.doubleValue());
+        this.series4.addOrUpdate(newValues.get(3).time.doubleValue(), newValues.get(3).value.doubleValue());
     }
 
     private JPanel createChartPanel() {

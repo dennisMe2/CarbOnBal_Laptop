@@ -8,13 +8,17 @@ package nl.meulensteen.dennis.carbonbal_desktop.comms;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortMessageListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
 import nl.meulensteen.dennis.carbonbal_desktop.control.Utils;
 import static nl.meulensteen.dennis.carbonbal_desktop.control.Utils.parseValues;
+import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
 
 /**
  *
@@ -27,7 +31,7 @@ public class SerialStuff {
     
     private SerialStuff() {
     }
-
+   
     public static SerialStuff getInstance() {
         if (instance == null) {
             instance = new SerialStuff();
@@ -35,20 +39,20 @@ public class SerialStuff {
         return instance;
     }
 
-    public void initSerialComms() throws InterruptedException {
-        openSerialPort();
+    public void initSerialComms(String name) throws InterruptedException {
+        sp = SerialPort.getCommPort(name);
         return;
     }
     
-    public boolean selectSerialPort(){
-        SerialPort[] portsAvailable = SerialPort.getCommPorts();
-        
-       
-        return true;
+    public List<String>  listSerialPorts(){
+        SerialPort[] ports = SerialPort.getCommPorts();
+        List<String> portList = new ArrayList();
+        for (SerialPort port : ports){
+            portList.add(port.getSystemPortName());
+        }
+        return portList;
     }
-
-    private boolean openSerialPort() throws InterruptedException {
-        sp = SerialPort.getCommPort("/dev/ttyUSB0");
+    public boolean openSerialPort() throws InterruptedException {
         sp.setComPortParameters(115200, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
         sp.setComPortTimeouts(SerialPort.TIMEOUT_SCANNER, 65535, 65535);
         sp.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);

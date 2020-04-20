@@ -11,23 +11,27 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
-public class MainScreen extends JFrame implements ActionListener {
 
+public class MainScreen extends JFrame implements ActionListener {
+    JComboBox portList;
+   
+    
     public MainScreen() {
         this.setSize(200, 700);
         this.setTitle("CarbOnBal Desktop");
@@ -52,27 +56,27 @@ public class MainScreen extends JFrame implements ActionListener {
             }
         });
 
+       
 
         //Creating the MenuBar and adding components
         JMenuBar menuBar = new JMenuBar();
         JMenu menuFile = new JMenu("File");
-        JMenu menuDisplay = new JMenu("Display");
+        JMenu menuDisplay = new JMenu("Window");
         JMenu menuHelp = new JMenu("Help");
-
+        
         menuBar.add(menuFile);
+        
         menuBar.add(menuDisplay);
         menuBar.add(menuHelp);
         JMenuItem menuItemOpen = new JMenuItem("Open");
-        JMenuItem menuItemSelectSerial = new JMenuItem("SelectSerialPort");
-        menuItemSelectSerial.addActionListener(this);
-        
-        JMenuItem menuItemStartSerial = new JMenuItem("Connect CarbOnBal");
-        menuItemStartSerial.addActionListener(this);
+//        menuItemOpen.addActionListener((ActionEvent e) -> {
+//            startSerialComms();
+//        });  
+
 
         JMenuItem menuItemSaveAs = new JMenuItem("Save as");
         menuFile.add(menuItemOpen);
-        menuFile.add(menuItemSelectSerial);
-        menuFile.add(menuItemStartSerial);
+       
         menuFile.add(menuItemSaveAs);
 
         JMenuItem menuItemPlot = new JMenuItem("Plot");
@@ -88,27 +92,52 @@ public class MainScreen extends JFrame implements ActionListener {
         menuDisplay.add(menuItemBar);
         menuDisplay.add(menuItemGuage);
 
-        //Creating the panel at bottom and adding components
-        JPanel bottomPanel = new JPanel();
-        JLabel enterText = new JLabel("Enter Text");
-        JTextField enterTextField = new JTextField(10);
-        JButton send = new JButton("Send");
-        JButton reset = new JButton("Reset");
-        bottomPanel.add(enterText);
-        bottomPanel.add(enterText);
-        bottomPanel.add(enterTextField);
-        bottomPanel.add(send);
-        bottomPanel.add(reset);
+        List<String> portStrings = SerialStuff.getInstance().listSerialPorts();
 
+        portList = new JComboBox(portStrings.toArray(new String[0]));
+        //portList.setSelectedIndex(4);
+        
+        portList.addActionListener((ActionEvent e) -> {
+            JComboBox comboBox = (JComboBox) e.getSource();
+            Object o = comboBox.getSelectedItem();
+        });  
+    
+
+        JToolBar toolbar = new JToolBar();  
+        toolbar.setRollover(true);  
+        JButton connectButton = new JButton("Connect");  
+        connectButton.addActionListener((ActionEvent e) -> {
+            startSerialComms();
+        });  
+        toolbar.add(connectButton);  
+        toolbar.addSeparator();   
+        toolbar.add(portList);  
+        toolbar.addSeparator();  
+        JButton refreshButton = new JButton("Refresh");  
+        refreshButton.addActionListener((ActionEvent e) -> {
+            SwingUtilities.invokeLater(() -> {
+                List<String> myPortStrings = SerialStuff.getInstance().listSerialPorts();
+                DefaultComboBoxModel newModel = new DefaultComboBoxModel(myPortStrings.toArray(new String[0]));
+                portList.setModel(newModel);
+                this.repaint();
+            });
+        });
+        
+        toolbar.add(refreshButton);
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(BorderLayout.NORTH, menuBar);
+        topPanel.add(BorderLayout.SOUTH, toolbar);
+       
         JTextArea centerText = new JTextArea();
 
         //Adding Components to the frame.
-        this.getContentPane().add(BorderLayout.SOUTH, bottomPanel);
-        this.getContentPane().add(BorderLayout.NORTH, menuBar);
+        this.getContentPane().add(BorderLayout.NORTH, topPanel);
         this.getContentPane().add(BorderLayout.CENTER, centerText);
         this.setVisible(true);
+        
+      
     }
-
+    
     @Override
     public void actionPerformed(final ActionEvent e) {
         String cmd = e.getActionCommand();
@@ -130,23 +159,24 @@ public class MainScreen extends JFrame implements ActionListener {
                 chart.setVisible(true);
             });
         }
-        //"SelectSerialPort" 
-        if (cmd.equals("SelectSerialPort")) {
-        
-            
-        }
+    
         
         if (cmd.equals("Connect CarbOnBal")) {
-            Runnable serialWorker = () -> {
-                try {
-                    //SerialStuff.getInstance().selectSerialPort();
-                    SerialStuff.getInstance().initSerialComms();
-               } catch (InterruptedException ex) {
-                    Logger.getLogger(XYLineChart.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            };
-            Thread thread = new Thread(serialWorker);
-            thread.start();
+            startSerialComms();
         }
+
+    }
+
+    private void startSerialComms() {
+        Runnable serialWorker = () -> {
+            try {
+                SerialStuff.getInstance().initSerialComms((String) portList.getSelectedItem());
+                SerialStuff.getInstance().openSerialPort();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(XYLineChart.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        };
+        Thread thread = new Thread(serialWorker);
+        thread.start();
     }
 }
