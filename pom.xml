@@ -51,7 +51,7 @@
     <archive>
       <manifest>
         <addClasspath>true</addClasspath>
-        <mainClass>com.javacreed.maven.examples.Main</mainClass>
+        <mainClass>nl.meulensteen.dennis.carbonbal_desktop.control.Main</mainClass>
       </manifest>
     </archive>
     <descriptorRefs>
