@@ -2,12 +2,15 @@
 Java laptop application for the CarbOnBal Arduino Carb and throttle body sync hardware.
 
 This should run on Mac, Windows, Linux, and BSD laptops, anywhere Java runs.
+It was tested on Linux and Windows 10.
 
 This gives you access to meters, bar charts and raw data graphs for an even more detailed view of what's going on in your engine's throttle bodies or carburetors.
 
 To use this software you will need Java installed on your computer.
 https://java.com/en/download/help/download_options.xml
 (OpenJDK will work too)
+
+You also need to flash CarbOnBal v1.5.4 or up onto your project's Arduino.
 
 Linux users should probably add their user to whichever group allows access to the serial port. 
 Normally one of the following commands will do the trick:
