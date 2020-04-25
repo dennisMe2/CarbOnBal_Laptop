@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
 import nl.meulensteen.dennis.carbonbal_desktop.control.Utils;
+import static nl.meulensteen.dennis.carbonbal_desktop.control.Utils.parseCalibrationValues;
 import static nl.meulensteen.dennis.carbonbal_desktop.control.Utils.parseValues;
 import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
 
@@ -59,8 +60,11 @@ public class SerialStuff {
         if (sp.openPort()) {
             System.out.println("Port is open, wait 2S. for Arduino DTR reboot");
             Thread.sleep(2000);
-            MessageListener listener = new MessageListener();
-            sp.addDataListener(listener);
+            
+            ValuesListener valuesListener = new ValuesListener();
+            sp.addDataListener(valuesListener);
+        
+            
         } else {
             System.out.println("Failed to open port :(");
             return false;
@@ -73,9 +77,8 @@ public class SerialStuff {
         return true;
     }
 
-    public final class MessageListener implements SerialPortMessageListener {
-        Integer counter = 0;
-
+    public final class ValuesListener implements SerialPortMessageListener {
+       
         @Override
         public int getListeningEvents() {
             return SerialPort.LISTENING_EVENT_DATA_RECEIVED;
@@ -83,26 +86,20 @@ public class SerialStuff {
 
         @Override
         public byte[] getMessageDelimiter() {
-            return new byte[]{(byte) 0xFD};
+            return new byte[]{(byte) 0xFE,(byte) 0xFD};
         }
 
         @Override
         public boolean delimiterIndicatesEndOfMessage() {
-            return true;
+            return false;
         }
 
         @Override
         public void serialEvent(SerialPortEvent event) {
-            byte[] delimitedMessage = event.getReceivedData();
-
-            List<Integer> intValues = parseValues(delimitedMessage);
-            
-            if(null == intValues) return;
-            
-            counter++;
-            dispatcher.processNewValues( Utils.getRawTimeValues(counter, intValues) );
+            dispatcher.processNewValues( event.getReceivedData() );
         }
-
     }
+    
+   
 
 }

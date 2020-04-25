@@ -58,7 +58,7 @@ public class Utils {
     public static List<Integer> parseValues(byte[] numbers) {
         int intValue;
 
-        if (numbers.length < 9) {
+        if (numbers.length < 8) {
             return null;
         }
 
@@ -66,10 +66,23 @@ public class Utils {
 
         for (int i = 0; i < 8; i++) {
             intValue = ((int) numbers[i]) << 8;
-            intValue |= Byte.toUnsignedInt(numbers[i + 1]);
+            intValue |= Byte.toUnsignedInt(numbers[i+1]);
 
             values.add(intValue);
             i++;
+        }
+        return values;
+    }
+    
+        public static List<Integer> parseCalibrationValues(byte[] numbers) {
+        if (numbers.length < 6) {
+            return null;
+        }
+
+        List<Integer> values = new ArrayList(4);
+
+        for (int i = 2; i < 6; i++) {
+            values.add((int) numbers[i]);
         }
         return values;
     }
