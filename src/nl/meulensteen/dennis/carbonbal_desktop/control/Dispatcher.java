@@ -13,6 +13,7 @@ import java.util.List;
 import static nl.meulensteen.dennis.carbonbal_desktop.control.Utils.calculateAverages;
 import static nl.meulensteen.dennis.carbonbal_desktop.control.Utils.parseValues;
 import nl.meulensteen.dennis.carbonbal_desktop.model.MessageType;
+import nl.meulensteen.dennis.carbonbal_desktop.model.Settings;
 import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
 
 /**
@@ -24,12 +25,18 @@ public class Dispatcher {
     private static Dispatcher instance;
     private List<PropertyChangeListener> listeners = new ArrayList<>();
     private List<PropertyChangeListener> integerListeners = new ArrayList<>();
+    private List<PropertyChangeListener> calibrationListeners = new ArrayList<>();
+    private List<PropertyChangeListener> rpmListeners = new ArrayList<>();
+    private List<PropertyChangeListener> settingsListeners = new ArrayList<>();
+
     private List<TimeValue<Integer>> tuples = new ArrayList<>();
     private List<TimeValue<Double>> doubleTuples = new ArrayList<>();
     private List<List<Integer>> calibrationValues = new ArrayList<>();
     private List<Double> averages = Arrays.asList(0.0, 0.0, 0.0, 0.0);
     private Integer counter = 0;
-    
+    private RpmCalculator rpmCalculator = new RpmCalculator();
+    private SettingsBuilder settingsBuilder = new SettingsBuilder();
+    private Settings settings;
     private Dispatcher() {
 
     }
@@ -48,7 +55,18 @@ public class Dispatcher {
     public void addIntegerChangeListener(PropertyChangeListener newListener) {
         integerListeners.add(newListener);
     }
-
+    
+    public void addSettingsChangeListener(PropertyChangeListener newListener) {
+        settingsListeners.add(newListener);
+    }
+    
+    
+    public void addCalibrationChangeListener(PropertyChangeListener newListener) {
+        calibrationListeners.add(newListener);
+    }
+    public void addRpmChangeListener(PropertyChangeListener newListener) {
+        rpmListeners.add(newListener);
+    }
     private void notifyListeners(String property, List<TimeValue<Double>> oldValues, List<TimeValue<Double>> newValues) {
         for (PropertyChangeListener name : listeners) {
             name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
@@ -61,6 +79,25 @@ public class Dispatcher {
         }
     }
     
+    private void notifySettingsListeners(String property, Settings oldValues, Settings newValues) {
+        for (PropertyChangeListener name : settingsListeners) {
+            name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
+        }
+    }
+    
+    
+     private void notifyCalibrationListeners(String property, List<List<Integer>> oldValues, List<List<Integer>> newValues) {
+        for (PropertyChangeListener name : calibrationListeners) {
+            name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
+        }
+    }
+    
+     private void notifyRpmListeners(String property, Double oldValue, Double newValue) {
+        for (PropertyChangeListener name : rpmListeners) {
+            name.propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
+        }
+    }
+     
     private MessageType determineMessageType(byte[] delimitedMessage){
         switch (delimitedMessage[2]){
             case (byte) 0xE0:
@@ -95,7 +132,7 @@ public class Dispatcher {
                 processCalibrationValues(values);
                 break;
             case("SETTINGS"):
-                
+                processSettingsValues(values);
                 break;
             case("DIAGNOSTICS"):
                 
@@ -111,6 +148,11 @@ public class Dispatcher {
         
     }
     
+     private void processSettingsValues(byte[] newRawValues) {
+        this.settings = settingsBuilder.get(newRawValues);
+        notifySettingsListeners("settings", settings, settings);
+    }
+    
     private void processCalibrationValues(byte[] newRawValues) {
         List<Integer> dataPoint = new ArrayList<>();
         dataPoint.add(Integer.valueOf(newRawValues[0]));
@@ -120,9 +162,7 @@ public class Dispatcher {
         
         calibrationValues.add(dataPoint);
         if(calibrationValues.size() == 256){
-            for(List<Integer> values : calibrationValues){
-                System.out.printf("%1,%2,%3,%4", values.get(0).intValue(),values.get(1).intValue(),values.get(2).intValue(),values.get(3).intValue() );
-            }
+            notifyCalibrationListeners("calibration", calibrationValues, calibrationValues);
         }
     }
     
@@ -136,8 +176,10 @@ public class Dispatcher {
         averages = calculateAverages(averages, newValues);
 
         List<TimeValue<Double>> newDoubleTuples = Utils.getTimeValues(newValues.get(0).time, averages);
-
         notifyListeners("tuples", doubleTuples, doubleTuples = newDoubleTuples);
+        
+        Double rpm = rpmCalculator.calculateAverageRpm(newValues);    
+        notifyRpmListeners("rpm", rpm, rpm);
     }
 
 }

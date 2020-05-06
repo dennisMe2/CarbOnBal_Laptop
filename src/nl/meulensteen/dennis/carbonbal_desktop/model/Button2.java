@@ -5,15 +5,21 @@
  */
 package nl.meulensteen.dennis.carbonbal_desktop.model;
 
+import lombok.Getter;
+
 /**
  *
  * @author dennis
  */
-public enum MessageType {
-    CARB_VACUUM,
-    CALIBRATION,
-    SETTINGS,
-    DIAGNOSTICS,
-    END_DATA,
-    ERROR;
+@Getter
+public enum Button2 {
+    BRIGHTNESS("Brightness"),
+    RPM("RPM Display"),
+    RPM_DAMPING("RPM Damping");
+    
+    private final String description;
+    
+    Button2(String description){
+        this.description = description;
+    }
 }

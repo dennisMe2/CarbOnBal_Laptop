@@ -6,7 +6,6 @@
 package nl.meulensteen.dennis.carbonbal_desktop.control;
 
 import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class Utils {
         }
         return averages;
     }
-    
+        
     public static TimeValue[] getAveragedTimeValues(int counter, List<Double> averages) {
         Double now = Double.valueOf(counter);
 

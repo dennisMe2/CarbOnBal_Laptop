@@ -87,11 +87,25 @@ public class MainScreen extends JFrame implements ActionListener {
 
         JMenuItem menuItemGuage = new JMenuItem("Guage");
         menuItemGuage.addActionListener(this);
-
+        
+        JMenuItem menuItemCalibration = new JMenuItem("Calibration");
+        menuItemCalibration.addActionListener(this);
+        
+        JMenuItem menuItemRpm = new JMenuItem("RPM");
+        menuItemRpm.addActionListener(this);
+        
+        JMenuItem menuItemSettings = new JMenuItem("Settings");
+        menuItemSettings.addActionListener(this);
+        
+        
         menuDisplay.add(menuItemPlot);
         menuDisplay.add(menuItemBar);
         menuDisplay.add(menuItemGuage);
+        menuDisplay.add(menuItemCalibration);
+        menuDisplay.add(menuItemRpm);   
+        menuDisplay.add(menuItemSettings);   
 
+                
         List<String> portStrings = SerialStuff.getInstance().listSerialPorts();
 
         portList = new JComboBox(portStrings.toArray(new String[0]));
@@ -159,7 +173,27 @@ public class MainScreen extends JFrame implements ActionListener {
                 chart.setVisible(true);
             });
         }
+        if (cmd.equals("Calibration")) {
+            SwingUtilities.invokeLater(() -> {
+                XYStepChart chart = new XYStepChart();
+                chart.setVisible(true);
+            });
+        }
     
+        if (cmd.equals("RPM")) {
+            SwingUtilities.invokeLater(() -> {
+                RpmChart chart = new RpmChart();
+                chart.setVisible(true);
+            });
+        }
+        
+         if (cmd.equals("Settings")) {
+            SwingUtilities.invokeLater(() -> {
+                SettingsChart chart = new SettingsChart();
+                chart.setVisible(true);
+            });
+        }
+        
         
         if (cmd.equals("Connect CarbOnBal")) {
             startSerialComms();
