@@ -14,12 +14,16 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
+import nl.meulensteen.dennis.carbonbal_desktop.control.SettingsFormatter;
 import nl.meulensteen.dennis.carbonbal_desktop.model.Settings;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -39,9 +43,12 @@ import org.jfree.data.general.DefaultValueDataset;
  * @author dennis
  */
 public class SettingsChart extends JFrame implements PropertyChangeListener {
-    private DefaultValueDataset model;
+
+    DefaultTableModel model;
     
      public SettingsChart() {
+
+         
         super("Settings");
         this.setLayout(new GridLayout());
         JPanel chartPanel = createChartPanel(0);
@@ -71,24 +78,40 @@ public class SettingsChart extends JFrame implements PropertyChangeListener {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
        
         Dispatcher.getInstance().addSettingsChangeListener(this);
+        Dispatcher.getInstance().pollSettingsChanges();
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         Settings newSettings = (Settings) event.getNewValue();
-        //model.setValue(newSettings);
+        List<String[]> tableData = SettingsFormatter.formatSettings(newSettings);
+        
+        model.setRowCount(0);
+        for(String[] row : tableData){
+            model.addRow(row);
+        }
+        
+        model.fireTableDataChanged();
     }
 
     private JPanel createChartPanel(int i) {
         String chartTitle = "SETTINGS Chart";
+        
+        String column[]={"ID","NAME","VALUE"};         
+        model = new DefaultTableModel(column,0);
+       
+        
+        JTable table=new JTable(model);    
+        table.setBounds(30,40,200,300);       
+        
+        TableColumnModel columnModel = table.getColumnModel();
+        
+        columnModel.getColumn(0).setPreferredWidth(5);
+        columnModel.getColumn(1).setPreferredWidth(250);
+        columnModel.getColumn(2).setPreferredWidth(100);
 
-       String data[][]={ {"101","Amit","670000"},    
-                          {"102","Jai","780000"},    
-                          {"101","Sachin","700000"}};    
-        String column[]={"ID","NAME","SALARY"};         
-        JTable jt=new JTable(data,column);    
-        jt.setBounds(30,40,200,300);          
-        JScrollPane sp=new JScrollPane(jt);  
+        
+        JScrollPane sp=new JScrollPane(table);  
         JPanel f=new JPanel();    
         f.add(sp);          
         f.setSize(300,400);    

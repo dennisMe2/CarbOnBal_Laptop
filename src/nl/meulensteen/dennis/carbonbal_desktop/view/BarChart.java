@@ -6,6 +6,7 @@
 package nl.meulensteen.dennis.carbonbal_desktop.view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
@@ -19,6 +20,8 @@ import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
@@ -69,9 +72,10 @@ public class BarChart extends JFrame implements PropertyChangeListener {
         List<TimeValue<Double>> newValues = (List<TimeValue<Double>>) event.getNewValue();
 
         model.setValue(newValues.get(0).value, "1", "C1");
-        model.setValue(newValues.get(1).value, "1", "C2");
-        model.setValue(newValues.get(2).value, "1", "C3");
-        model.setValue(newValues.get(3).value, "1", "C4");
+        model.setValue(newValues.get(1).value, "2", "C2");
+        model.setValue(newValues.get(2).value, "3", "C3");
+        model.setValue(newValues.get(3).value, "4", "C4");
+      
     }
 
     private JPanel createChartPanel() {
@@ -84,9 +88,24 @@ public class BarChart extends JFrame implements PropertyChangeListener {
         JFreeChart chart = ChartFactory.createBarChart(chartTitle,
                 xAxisLabel, yAxisLabel, dataset);
 
+        
+        
         chart.getCategoryPlot().getRangeAxis().setLowerBound(0.0);
         chart.getCategoryPlot().getRangeAxis().setUpperBound(1030.0);
 
+        
+        CategoryPlot categoryplot = chart.getCategoryPlot();
+        BarRenderer bar = new BarRenderer();
+        bar.setItemMargin(-2); //reduce the width between the bars.
+        bar.setMaximumBarWidth(0.20);
+        bar.setSeriesPaint(0, Color.RED); 
+        bar.setSeriesPaint(1,Color.GREEN);
+        bar.setSeriesPaint(2,Color.BLUE);
+        bar.setSeriesPaint(3,Color.ORANGE);
+        categoryplot.setRenderer(bar);
+        categoryplot.setBackgroundPaint(new Color(192, 192, 192));
+        
+        
         return new ChartPanel(chart);
     }
 

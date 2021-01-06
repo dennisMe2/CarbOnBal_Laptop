@@ -79,6 +79,12 @@ public class Dispatcher {
         }
     }
     
+    public void pollSettingsChanges(){
+        if(settings != null){
+            notifySettingsListeners("Settings", settings,settings);
+        }
+    }
+    
     private void notifySettingsListeners(String property, Settings oldValues, Settings newValues) {
         for (PropertyChangeListener name : settingsListeners) {
             name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));

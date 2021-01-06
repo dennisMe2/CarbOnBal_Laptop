@@ -71,10 +71,10 @@ public class XYLineChart extends JFrame implements ActionListener, PropertyChang
             }
         });
         
-        series1.setMaximumItemCount(2000);
-        series2.setMaximumItemCount(2000);
-        series3.setMaximumItemCount(2000);
-        series4.setMaximumItemCount(2000);
+        series1.setMaximumItemCount(2001);
+        series2.setMaximumItemCount(2001);
+        series3.setMaximumItemCount(2001);
+        series4.setMaximumItemCount(2001);
         
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         Dispatcher.getInstance().addIntegerChangeListener(this);

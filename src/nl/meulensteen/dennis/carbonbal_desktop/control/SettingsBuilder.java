@@ -34,8 +34,8 @@ public class SettingsBuilder {
        settings.setButton1(Integer.valueOf(bytes[6]));
        settings.setButton2(Integer.valueOf(bytes[7])); 
        settings.setButton3(Integer.valueOf(bytes[8])); 
-       settings.setContrast(Integer.valueOf(bytes[9]));
-       settings.setBrightness(Integer.valueOf(bytes[10]));
+       settings.setContrast(Byte.toUnsignedInt(bytes[9]));
+       settings.setBrightness(Byte.toUnsignedInt(bytes[10]));
        settings.setGraphType(Integer.valueOf(bytes[11])); 
        settings.setRpmDamping(Integer.valueOf(bytes[12]));
        settings.setUnits(Integer.valueOf(bytes[13]));

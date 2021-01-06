@@ -5,7 +5,9 @@
  */
 package nl.meulensteen.dennis.carbonbal_desktop.model;
 
+import java.util.Arrays;
 import lombok.Getter;
+import static nl.meulensteen.dennis.carbonbal_desktop.model.Button1.values;
 
 /**
  *
@@ -21,5 +23,9 @@ public enum Button3 {
     
     Button3(String description){
         this.description = description;
+    }
+    
+    public static String getDescription(int value) {
+        return Arrays.asList(values()).get(value).getDescription();
     }
 }

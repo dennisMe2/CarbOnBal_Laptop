@@ -41,6 +41,9 @@ public class SerialStuff {
     }
 
     public void initSerialComms(String name) throws InterruptedException {
+        if(sp != null && sp.isOpen()){
+            sp.closePort();
+        }
         sp = SerialPort.getCommPort(name);
         return;
     }

@@ -12,23 +12,18 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.MeterInterval;
-import org.jfree.chart.plot.MeterPlot;
 import org.jfree.chart.plot.dial.DialPlot;
 import org.jfree.chart.plot.dial.DialPointer;
 import org.jfree.chart.plot.dial.DialValueIndicator;
 import org.jfree.chart.plot.dial.StandardDialFrame;
 import org.jfree.chart.plot.dial.StandardDialRange;
 import org.jfree.chart.plot.dial.StandardDialScale;
-import org.jfree.data.Range;
 import org.jfree.data.general.DefaultValueDataset;
 
 /**
