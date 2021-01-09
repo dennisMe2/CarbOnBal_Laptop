@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop.model;
+package nl.meulensteen.dennis.carbonbal_laptop.model;
 
 
 public class TimeValue<T> {

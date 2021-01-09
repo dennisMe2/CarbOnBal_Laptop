@@ -39,7 +39,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>nl.meulensteen.dennis.carbonbal_desktop.control.Main</mainClass>
+              <mainClass>nl.meulensteen.dennis.carbonbal_laptop.control.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -51,7 +51,7 @@
     <archive>
       <manifest>
         <addClasspath>true</addClasspath>
-        <mainClass>nl.meulensteen.dennis.carbonbal_desktop.control.Main</mainClass>
+        <mainClass>nl.meulensteen.dennis.carbonbal_laptop.control.Main</mainClass>
       </manifest>
     </archive>
     <descriptorRefs>

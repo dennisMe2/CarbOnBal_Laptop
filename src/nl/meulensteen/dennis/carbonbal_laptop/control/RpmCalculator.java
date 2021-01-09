@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop.control;
+package nl.meulensteen.dennis.carbonbal_laptop.control;
 
 import java.util.List;
-import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
+import nl.meulensteen.dennis.carbonbal_laptop.model.TimeValue;
 
 /**
  *

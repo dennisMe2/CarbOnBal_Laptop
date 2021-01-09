@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop.view;
+package nl.meulensteen.dennis.carbonbal_laptop.view;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -11,13 +11,14 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.Instant;
 import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
-import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
+import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
+import nl.meulensteen.dennis.carbonbal_laptop.model.TimeValue;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -38,6 +39,7 @@ public class MeterChart extends JFrame implements PropertyChangeListener {
     private DefaultValueDataset[] models = {null,null,null,null};
 
     public Double data1;
+     private long lastInvocation = Instant.now().toEpochMilli();
 
     public MeterChart() {
         super("Meter Chart");
@@ -76,10 +78,13 @@ public class MeterChart extends JFrame implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
+        long differenceMilliseconds = Instant.now().toEpochMilli() - lastInvocation;
+        if(differenceMilliseconds < 4) return;
+        
         List<TimeValue<Double>> newValues = (List<TimeValue<Double>>) event.getNewValue();
 
         for (int i=0;i<4;i++) models[i].setValue(newValues.get(i).value);
-
+        lastInvocation = Instant.now().toEpochMilli();
     }
 
     private JPanel createChartPanel(int i) {

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop.view;
+package nl.meulensteen.dennis.carbonbal_laptop.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,12 +11,13 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.Instant;
 import java.util.List;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
-import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
+import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
+import nl.meulensteen.dennis.carbonbal_laptop.model.TimeValue;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -34,7 +35,7 @@ public class BarChart extends JFrame implements PropertyChangeListener {
     public XYSeries series2 = new XYSeries(1);
     public XYSeries series3 = new XYSeries(2);
     public XYSeries series4 = new XYSeries(3);
-
+    private long lastInvocation = Instant.now().toEpochMilli();
     public Double data1;
 
     public BarChart() {
@@ -69,6 +70,9 @@ public class BarChart extends JFrame implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
+        long differenceMilliseconds = Instant.now().toEpochMilli() - lastInvocation;
+        if(differenceMilliseconds < 10) return;
+        
         List<TimeValue<Double>> newValues = (List<TimeValue<Double>>) event.getNewValue();
 
         model.setValue(newValues.get(0).value, "1", "C1");
@@ -76,6 +80,7 @@ public class BarChart extends JFrame implements PropertyChangeListener {
         model.setValue(newValues.get(2).value, "3", "C3");
         model.setValue(newValues.get(3).value, "4", "C4");
       
+        lastInvocation = Instant.now().toEpochMilli();
     }
 
     private JPanel createChartPanel() {

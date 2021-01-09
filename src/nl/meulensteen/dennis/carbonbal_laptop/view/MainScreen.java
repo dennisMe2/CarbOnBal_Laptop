@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop.view;
+package nl.meulensteen.dennis.carbonbal_laptop.view;
 
-import nl.meulensteen.dennis.carbonbal_desktop.comms.SerialStuff;
+import nl.meulensteen.dennis.carbonbal_laptop.comms.SerialStuff;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,8 +31,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
-import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
+import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
+import nl.meulensteen.dennis.carbonbal_laptop.model.TimeValue;
 
 
 public class MainScreen extends JFrame implements ActionListener {

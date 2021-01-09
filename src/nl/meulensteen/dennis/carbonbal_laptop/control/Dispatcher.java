@@ -3,18 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop.control;
+package nl.meulensteen.dennis.carbonbal_laptop.control;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import static nl.meulensteen.dennis.carbonbal_desktop.control.Utils.calculateAverages;
-import static nl.meulensteen.dennis.carbonbal_desktop.control.Utils.parseValues;
-import nl.meulensteen.dennis.carbonbal_desktop.model.MessageType;
-import nl.meulensteen.dennis.carbonbal_desktop.model.Settings;
-import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
+import static nl.meulensteen.dennis.carbonbal_laptop.control.Utils.calculateAverages;
+import static nl.meulensteen.dennis.carbonbal_laptop.control.Utils.parseValues;
+import nl.meulensteen.dennis.carbonbal_laptop.model.MessageType;
+import nl.meulensteen.dennis.carbonbal_laptop.model.Settings;
+import nl.meulensteen.dennis.carbonbal_laptop.model.TimeValue;
 
 /**
  *

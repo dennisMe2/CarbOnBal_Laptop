@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop.comms;
+package nl.meulensteen.dennis.carbonbal_laptop.comms;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
+import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
 
 
 /**

@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop.control;
+package nl.meulensteen.dennis.carbonbal_laptop.control;
 
-import nl.meulensteen.dennis.carbonbal_desktop.view.MainScreen;
+import nl.meulensteen.dennis.carbonbal_laptop.view.MainScreen;
 import java.io.IOException;
 import javax.swing.SwingUtilities;
 

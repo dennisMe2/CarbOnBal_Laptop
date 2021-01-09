@@ -3,17 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop.control;
+package nl.meulensteen.dennis.carbonbal_laptop.control;
 
 import java.util.ArrayList;
 import java.util.List;
-import nl.meulensteen.dennis.carbonbal_desktop.model.Button1;
-import nl.meulensteen.dennis.carbonbal_desktop.model.Button2;
-import nl.meulensteen.dennis.carbonbal_desktop.model.Button3;
-import nl.meulensteen.dennis.carbonbal_desktop.model.GraphType;
-import nl.meulensteen.dennis.carbonbal_desktop.model.Settings;
-import nl.meulensteen.dennis.carbonbal_desktop.model.SettingsRow;
-import nl.meulensteen.dennis.carbonbal_desktop.model.Units;
+import nl.meulensteen.dennis.carbonbal_laptop.model.Button1;
+import nl.meulensteen.dennis.carbonbal_laptop.model.Button2;
+import nl.meulensteen.dennis.carbonbal_laptop.model.Button3;
+import nl.meulensteen.dennis.carbonbal_laptop.model.GraphType;
+import nl.meulensteen.dennis.carbonbal_laptop.model.Settings;
+import nl.meulensteen.dennis.carbonbal_laptop.model.SettingsRow;
+import nl.meulensteen.dennis.carbonbal_laptop.model.Units;
 
 /**
  *

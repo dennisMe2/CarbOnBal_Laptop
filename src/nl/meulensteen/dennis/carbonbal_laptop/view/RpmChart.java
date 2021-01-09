@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop.view;
+package nl.meulensteen.dennis.carbonbal_laptop.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -15,7 +15,7 @@ import java.beans.PropertyChangeListener;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
+import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.dial.DialPlot;

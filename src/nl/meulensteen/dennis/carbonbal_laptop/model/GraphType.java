@@ -3,25 +3,26 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nl.meulensteen.dennis.carbonbal_desktop.model;
+package nl.meulensteen.dennis.carbonbal_laptop.model;
 
 import java.util.Arrays;
 import lombok.Getter;
-import static nl.meulensteen.dennis.carbonbal_desktop.model.Button1.values;
+import static nl.meulensteen.dennis.carbonbal_laptop.model.Button1.values;
 
 /**
  *
  * @author dennis
  */
 @Getter
-public enum Button2 {
-    BRIGHTNESS("Brightness"),
-    RPM("RPM Display"),
-    RPM_DAMPING("RPM Damping");
+public enum GraphType {
+    ABSOLUTE_BAR("Absolute Bar Graph"),
+    RELATIVE_BAR("Relative Bar Graph"),
+    DIAGNOSTIC("Diagnostic Display");
+    
     
     private final String description;
     
-    Button2(String description){
+    GraphType(String description){
         this.description = description;
     }
     
