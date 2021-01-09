@@ -11,10 +11,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -26,6 +31,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import nl.meulensteen.dennis.carbonbal_desktop.control.Dispatcher;
+import nl.meulensteen.dennis.carbonbal_desktop.model.TimeValue;
 
 
 public class MainScreen extends JFrame implements ActionListener {
@@ -68,17 +75,25 @@ public class MainScreen extends JFrame implements ActionListener {
         
         menuBar.add(menuDisplay);
         menuBar.add(menuHelp);
-        JMenuItem menuItemOpen = new JMenuItem("Open");
-//        menuItemOpen.addActionListener((ActionEvent e) -> {
-//            startSerialComms();
-//        });  
 
 
-        JMenuItem menuItemSaveAs = new JMenuItem("Save as");
-        menuFile.add(menuItemOpen);
-       
-        menuFile.add(menuItemSaveAs);
+        JMenuItem menuItemStartRecording = new JMenuItem("Start Recording");
+        menuFile.add(menuItemStartRecording);
+        menuItemStartRecording.addActionListener(this);
+        
+        JMenuItem menuItemStopRecording = new JMenuItem("Stop Recording");
+        menuFile.add(menuItemStopRecording);
+        menuItemStopRecording.addActionListener(this);
+        
+        JMenuItem menuItemSaveRecordingAs = new JMenuItem("Save Recording as");
+        menuFile.add(menuItemSaveRecordingAs);
+        menuItemSaveRecordingAs.addActionListener(this);
+        
+        JMenuItem menuItemClearRecording = new JMenuItem("Clear Recording");
+        menuFile.add(menuItemClearRecording);
+        menuItemClearRecording.addActionListener(this);
 
+        
         JMenuItem menuItemPlot = new JMenuItem("Plot");
         menuItemPlot.addActionListener(this);
 
@@ -157,7 +172,7 @@ public class MainScreen extends JFrame implements ActionListener {
         String cmd = e.getActionCommand();
         if (cmd.equals("Plot")) {
             SwingUtilities.invokeLater(() -> {
-                XYLineChart chart = new XYLineChart();
+                VacuumChart chart = new VacuumChart();
                 chart.setVisible(true);
             });
         }
@@ -175,7 +190,7 @@ public class MainScreen extends JFrame implements ActionListener {
         }
         if (cmd.equals("Calibration")) {
             SwingUtilities.invokeLater(() -> {
-                XYStepChart chart = new XYStepChart();
+                CalibrationChart chart = new CalibrationChart();
                 chart.setVisible(true);
             });
         }
@@ -198,16 +213,63 @@ public class MainScreen extends JFrame implements ActionListener {
         if (cmd.equals("Connect CarbOnBal")) {
             startSerialComms();
         }
+        
+        if(cmd.equals("Start Recording")){
+            Dispatcher.getInstance().enableRecording();
+        }
+        
+        if(cmd.equals("Stop Recording")){
+            Dispatcher.getInstance().disableRecording();
+        }
+        
+        if(cmd.equals("Save Recording as")){
+            
+            File csvOutputFile = new File("CarbOnBalDump.csv");
+            try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
+                Dispatcher.getInstance().getRecordingdata().stream()
+                .map(this::convertToCSV)
+                .forEach(pw::println);
+            }   catch (FileNotFoundException ex) {
+                    Logger.getLogger(MainScreen.class.getName()).log(Level.SEVERE, null, ex);
+            }
+    
+        }
+        
+        if(cmd.equals("Clear Recording")){
+            Dispatcher.getInstance().clearRecording();
+        }
 
     }
 
+    private String convertToCSV(List<TimeValue<Integer>> data) {
+    return Stream.of(data)
+      .map(this::convertToString)
+      .collect(Collectors.joining(","));
+    }
+    
+    private String convertToString(List<TimeValue<Integer>> data){
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append(data.get(0).time.toString());
+        sb.append(',');
+        sb.append(data.get(0).value.toString());
+        sb.append(',');
+        sb.append(data.get(1).value.toString());
+        sb.append(',');
+        sb.append(data.get(0).value.toString());
+        sb.append(',');
+        sb.append(data.get(0).value.toString());
+            
+        return sb.toString();
+    }
+    
     private void startSerialComms() {
         Runnable serialWorker = () -> {
             try {
                 SerialStuff.getInstance().initSerialComms((String) portList.getSelectedItem());
                 SerialStuff.getInstance().openSerialPort();
             } catch (InterruptedException ex) {
-                Logger.getLogger(XYLineChart.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(VacuumChart.class.getName()).log(Level.SEVERE, null, ex);
             }
         };
         Thread thread = new Thread(serialWorker);

@@ -29,6 +29,7 @@ public class Dispatcher {
     private List<PropertyChangeListener> rpmListeners = new ArrayList<>();
     private List<PropertyChangeListener> settingsListeners = new ArrayList<>();
 
+    private List<List<TimeValue<Integer>>> recordingTuples = new ArrayList<>();
     private List<TimeValue<Integer>> tuples = new ArrayList<>();
     private List<TimeValue<Double>> doubleTuples = new ArrayList<>();
     private List<List<Integer>> calibrationValues = new ArrayList<>();
@@ -37,8 +38,10 @@ public class Dispatcher {
     private RpmCalculator rpmCalculator = new RpmCalculator();
     private SettingsBuilder settingsBuilder = new SettingsBuilder();
     private Settings settings;
+    private boolean isRecordingEnabled = false;
+   
     private Dispatcher() {
-
+        //nope!
     }
 
     public static Dispatcher getInstance() {
@@ -48,6 +51,22 @@ public class Dispatcher {
         return instance;
     }
 
+    public void enableRecording(){
+        isRecordingEnabled = true;
+    }
+    
+    public void disableRecording(){
+        isRecordingEnabled = false;
+    }
+    
+    public void clearRecording(){
+        recordingTuples = new ArrayList<>();
+    }
+    
+    public List<List<TimeValue<Integer>>> getRecordingdata(){
+        return recordingTuples;
+    }
+    
     public void addChangeListener(PropertyChangeListener newListener) {
         listeners.add(newListener);
     }
@@ -81,7 +100,7 @@ public class Dispatcher {
     
     public void pollSettingsChanges(){
         if(settings != null){
-            notifySettingsListeners("Settings", settings,settings);
+            notifySettingsListeners("Settings", settings, settings);
         }
     }
     
@@ -91,6 +110,12 @@ public class Dispatcher {
         }
     }
     
+    
+    public void pollCalibrationChanges(){
+        if(calibrationValues != null){
+            notifyCalibrationListeners("calibration", calibrationValues, calibrationValues);
+        }
+    }
     
      private void notifyCalibrationListeners(String property, List<List<Integer>> oldValues, List<List<Integer>> newValues) {
         for (PropertyChangeListener name : calibrationListeners) {
@@ -155,8 +180,10 @@ public class Dispatcher {
     }
     
      private void processSettingsValues(byte[] newRawValues) {
-        this.settings = settingsBuilder.get(newRawValues);
-        notifySettingsListeners("settings", settings, settings);
+         if(newRawValues != null){
+            this.settings = settingsBuilder.get(newRawValues);
+            notifySettingsListeners("settings", settings, settings);
+         }
     }
     
     private void processCalibrationValues(byte[] newRawValues) {
@@ -176,6 +203,10 @@ public class Dispatcher {
         List<Integer> newIntValues = parseValues(newRawValues);    
         
         List<TimeValue<Integer>> newValues = Utils.getRawTimeValues(counter++, newIntValues);
+        
+        if(this.isRecordingEnabled){
+            this.recordingTuples.add(newValues);
+        }
         
         notifyIntegerListeners("tuples", tuples, tuples = newValues);
 

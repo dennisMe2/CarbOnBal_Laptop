@@ -84,14 +84,16 @@ public class SettingsChart extends JFrame implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         Settings newSettings = (Settings) event.getNewValue();
-        List<String[]> tableData = SettingsFormatter.formatSettings(newSettings);
-        
-        model.setRowCount(0);
-        for(String[] row : tableData){
-            model.addRow(row);
+        if (newSettings != null && newSettings.getVersionId() != null){
+            List<String[]> tableData = SettingsFormatter.formatSettings(newSettings);
+
+            model.setRowCount(0);
+            for(String[] row : tableData){
+                model.addRow(row);
+            }
+
+            model.fireTableDataChanged();
         }
-        
-        model.fireTableDataChanged();
     }
 
     private JPanel createChartPanel(int i) {

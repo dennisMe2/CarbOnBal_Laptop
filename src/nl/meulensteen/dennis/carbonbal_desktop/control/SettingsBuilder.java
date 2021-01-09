@@ -6,7 +6,6 @@
 package nl.meulensteen.dennis.carbonbal_desktop.control;
 
 import nl.meulensteen.dennis.carbonbal_desktop.model.Settings;
-import nl.meulensteen.dennis.carbonbal_desktop.model.Settings;
 
 /**
  *
@@ -15,11 +14,14 @@ import nl.meulensteen.dennis.carbonbal_desktop.model.Settings;
 public class SettingsBuilder {
     
     public Settings get(byte[] values){
-             switch(values[0]){
-            case (28):
+        byte settingsVersion = values[0];
+        
+        if(settingsVersion >=28 && settingsVersion <=31){            
                 return fillCommonSettings(values);
-         }
-        return new Settings();
+         } else{
+                return fillCommonSettings(values);
+        }
+        
     }
     
     private Settings fillCommonSettings(byte[] bytes){
