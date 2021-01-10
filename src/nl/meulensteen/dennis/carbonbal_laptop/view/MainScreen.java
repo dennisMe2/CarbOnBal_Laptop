@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -31,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
 import nl.meulensteen.dennis.carbonbal_laptop.model.TimeValue;
 
@@ -87,7 +89,27 @@ public class MainScreen extends JFrame implements ActionListener {
         
         JMenuItem menuItemSaveRecordingAs = new JMenuItem("Save Recording as");
         menuFile.add(menuItemSaveRecordingAs);
-        menuItemSaveRecordingAs.addActionListener(this);
+        menuItemSaveRecordingAs.addActionListener(new ActionListener() {
+            //Use a separate thread to prevent hanging up the gui
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new Thread(() -> {
+                    File csvOutputFile = new File("CarbOnBalDump.csv");
+                    JFileChooser chooser = new JFileChooser(csvOutputFile);
+                    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                            ".csv documents", "csv");
+                    chooser.setFileFilter(filter);
+                    int result = chooser.showSaveDialog(MainScreen.this);
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        try (final PrintWriter pw = new PrintWriter(chooser.getSelectedFile())) {
+                            Dispatcher.getInstance().getRecordingdata().stream().map(MainScreen.this::convertToCSV).forEach(pw::println);
+                        }catch (FileNotFoundException ex) {
+                            Logger.getLogger(MainScreen.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }).start();
+            }
+        });
         
         JMenuItem menuItemClearRecording = new JMenuItem("Clear Recording");
         menuFile.add(menuItemClearRecording);
@@ -221,19 +243,7 @@ public class MainScreen extends JFrame implements ActionListener {
         if(cmd.equals("Stop Recording")){
             Dispatcher.getInstance().disableRecording();
         }
-        
-        if(cmd.equals("Save Recording as")){
-            
-            File csvOutputFile = new File("CarbOnBalDump.csv");
-            try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
-                Dispatcher.getInstance().getRecordingdata().stream()
-                .map(this::convertToCSV)
-                .forEach(pw::println);
-            }   catch (FileNotFoundException ex) {
-                    Logger.getLogger(MainScreen.class.getName()).log(Level.SEVERE, null, ex);
-            }
-    
-        }
+             
         
         if(cmd.equals("Clear Recording")){
             Dispatcher.getInstance().clearRecording();
