@@ -87,7 +87,7 @@ public class MainScreen extends JFrame implements ActionListener {
         menuFile.add(menuItemStopRecording);
         menuItemStopRecording.addActionListener(this);
         
-        JMenuItem menuItemSaveRecordingAs = new JMenuItem("Save Recording as");
+        JMenuItem menuItemSaveRecordingAs = new JMenuItem("Save Recording as...");
         menuFile.add(menuItemSaveRecordingAs);
         menuItemSaveRecordingAs.addActionListener(new ActionListener() {
             //Use a separate thread to prevent hanging up the gui
