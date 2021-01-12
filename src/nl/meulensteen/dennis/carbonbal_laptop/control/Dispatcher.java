@@ -10,8 +10,13 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import nl.meulensteen.dennis.carbonbal_laptop.comms.SerialStuff;
 import static nl.meulensteen.dennis.carbonbal_laptop.control.Utils.calculateAverages;
 import static nl.meulensteen.dennis.carbonbal_laptop.control.Utils.parseValues;
+import static nl.meulensteen.dennis.carbonbal_laptop.model.EventType.CALIBRATION;
+import static nl.meulensteen.dennis.carbonbal_laptop.model.EventType.RPM;
+import static nl.meulensteen.dennis.carbonbal_laptop.model.EventType.SETTINGS;
+import static nl.meulensteen.dennis.carbonbal_laptop.model.EventType.VACUUM;
 import nl.meulensteen.dennis.carbonbal_laptop.model.MessageType;
 import nl.meulensteen.dennis.carbonbal_laptop.model.Settings;
 import nl.meulensteen.dennis.carbonbal_laptop.model.TimeValue;
@@ -67,11 +72,11 @@ public class Dispatcher {
         return recordingTuples;
     }
     
-    public void addChangeListener(PropertyChangeListener newListener) {
+    public void addVacuumChangeListener(PropertyChangeListener newListener) {
         listeners.add(newListener);
     }
 
-    public void addIntegerChangeListener(PropertyChangeListener newListener) {
+    public void addIntVacuumChangeListener(PropertyChangeListener newListener) {
         integerListeners.add(newListener);
     }
     
@@ -86,21 +91,34 @@ public class Dispatcher {
     public void addRpmChangeListener(PropertyChangeListener newListener) {
         rpmListeners.add(newListener);
     }
-    private void notifyListeners(String property, List<TimeValue<Double>> oldValues, List<TimeValue<Double>> newValues) {
+    
+    public void pollVacuum(){
+        SerialStuff.getInstance().getVacuum();
+    }
+    
+    private void notifyVacuumListeners(String property, List<TimeValue<Double>> oldValues, List<TimeValue<Double>> newValues) {
         for (PropertyChangeListener name : listeners) {
             name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
         }
     }
 
-    private void notifyIntegerListeners(String property, List<TimeValue<Integer>> oldValues, List<TimeValue<Integer>> newValues) {
+    private void notifyIntVacuumListeners(String property, List<TimeValue<Integer>> oldValues, List<TimeValue<Integer>> newValues) {
         for (PropertyChangeListener name : integerListeners) {
             name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
         }
     }
     
-    public void pollSettingsChanges(){
+    public Settings getSettings(){
+        return settings;
+    }
+    
+    public void pollSettings(){
+        SerialStuff.getInstance().getSettings();
+    }
+    
+    public void notifySettingsChanges(){
         if(settings != null){
-            notifySettingsListeners("Settings", settings, settings);
+            notifySettingsListeners(SETTINGS.getValue(), settings, settings);
         }
     }
     
@@ -110,10 +128,12 @@ public class Dispatcher {
         }
     }
     
-    
+    public void pollCalibration(){
+        SerialStuff.getInstance().getCalibration();
+    }
     public void pollCalibrationChanges(){
         if(calibrationValues != null){
-            notifyCalibrationListeners("calibration", calibrationValues, calibrationValues);
+            notifyCalibrationListeners(CALIBRATION.getValue(), calibrationValues, calibrationValues);
         }
     }
     
@@ -182,7 +202,7 @@ public class Dispatcher {
      private void processSettingsValues(byte[] newRawValues) {
          if(newRawValues != null){
             this.settings = settingsBuilder.get(newRawValues);
-            notifySettingsListeners("settings", settings, settings);
+            notifySettingsListeners(SETTINGS.getValue(), settings, settings);
          }
     }
     
@@ -195,7 +215,7 @@ public class Dispatcher {
         
         calibrationValues.add(dataPoint);
         if(calibrationValues.size() == 256){
-            notifyCalibrationListeners("calibration", calibrationValues, calibrationValues);
+            notifyCalibrationListeners(CALIBRATION.getValue(), calibrationValues, calibrationValues);
         }
     }
     
@@ -208,15 +228,15 @@ public class Dispatcher {
             this.recordingTuples.add(newValues);
         }
         
-        notifyIntegerListeners("tuples", tuples, tuples = newValues);
+        notifyIntVacuumListeners(VACUUM.getValue(), tuples, tuples = newValues);
 
         averages = calculateAverages(averages, newValues);
 
         List<TimeValue<Double>> newDoubleTuples = Utils.getTimeValues(newValues.get(0).time, averages);
-        notifyListeners("tuples", doubleTuples, doubleTuples = newDoubleTuples);
+        notifyVacuumListeners(VACUUM.getValue(), doubleTuples, doubleTuples = newDoubleTuples);
         
         Double rpm = rpmCalculator.calculateAverageRpm(newValues);    
-        notifyRpmListeners("rpm", rpm, rpm);
+        notifyRpmListeners(RPM.getValue(), rpm, rpm);
     }
 
 }

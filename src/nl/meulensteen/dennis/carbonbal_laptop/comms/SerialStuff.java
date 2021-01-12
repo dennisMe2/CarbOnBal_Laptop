@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
+import static nl.meulensteen.dennis.carbonbal_laptop.model.EventType.CALIBRATION;
+import static nl.meulensteen.dennis.carbonbal_laptop.model.EventType.SETTINGS;
+import static nl.meulensteen.dennis.carbonbal_laptop.model.EventType.VACUUM;
 
 
 /**
@@ -24,6 +27,7 @@ public class SerialStuff {
     private static SerialStuff instance;
     private SerialPort sp;
     private final Dispatcher dispatcher = Dispatcher.getInstance();
+   
     
     private SerialStuff() {
     }
@@ -52,13 +56,12 @@ public class SerialStuff {
         return portList;
     }
     public boolean openSerialPort() throws InterruptedException {
-        //sp.setComPortParameters(115200, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
         sp.setComPortParameters(230400, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
         sp.setComPortTimeouts(SerialPort.TIMEOUT_SCANNER, 65535, 65535);
         sp.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
         if (sp.openPort()) {
-            System.out.println("Port is open, wait 2S. for Arduino DTR reboot");
-            Thread.sleep(2000);
+            System.out.println("Port is open, wait 1.5 S. for Arduino DTR reboot");
+            Thread.sleep(1500);
             
             ValuesListener valuesListener = new ValuesListener();
             sp.addDataListener(valuesListener);
@@ -68,14 +71,36 @@ public class SerialStuff {
             System.out.println("Failed to open port :(");
             return false;
         }
-        try {
-            sp.getOutputStream().write(0xFC); //go to data dump mode
-        } catch (IOException ex) {
-            Logger.getLogger(SerialStuff.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
+        getVacuum(); //fire up the data acquisition loop
+        
         return true;
     }
 
+    public void getSettings(){
+        try {
+            sp.getOutputStream().write(SETTINGS.getCommand()); //go to settings data dump mode
+        } catch (IOException ex) {
+            Logger.getLogger(SerialStuff.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void getCalibration(){
+           try {
+            sp.getOutputStream().write(CALIBRATION.getCommand()); //go to calibration data dump mode
+        } catch (IOException ex) {
+            Logger.getLogger(SerialStuff.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void getVacuum(){
+           try {
+            sp.getOutputStream().write(VACUUM.getCommand()); //go to vacuum data dump mode
+        } catch (IOException ex) {
+            Logger.getLogger(SerialStuff.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public final class ValuesListener implements SerialPortMessageListener {
        
         @Override

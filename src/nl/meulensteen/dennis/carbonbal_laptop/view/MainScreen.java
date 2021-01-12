@@ -43,7 +43,7 @@ public class MainScreen extends JFrame implements ActionListener {
     
     public MainScreen() {
         this.setSize(200, 700);
-        this.setTitle("CarbOnBal Desktop");
+        this.setTitle("CarbOnBal Laptop");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         Preferences prefs = Preferences.userNodeForPackage(this.getClass());
@@ -146,8 +146,7 @@ public class MainScreen extends JFrame implements ActionListener {
         List<String> portStrings = SerialStuff.getInstance().listSerialPorts();
 
         portList = new JComboBox(portStrings.toArray(new String[0]));
-        //portList.setSelectedIndex(4);
-        
+                
         portList.addActionListener((ActionEvent e) -> {
             JComboBox comboBox = (JComboBox) e.getSource();
             Object o = comboBox.getSelectedItem();
@@ -274,15 +273,13 @@ public class MainScreen extends JFrame implements ActionListener {
     }
     
     private void startSerialComms() {
-        Runnable serialWorker = () -> {
+        new Thread(() -> {
             try {
                 SerialStuff.getInstance().initSerialComms((String) portList.getSelectedItem());
                 SerialStuff.getInstance().openSerialPort();
             } catch (InterruptedException ex) {
                 Logger.getLogger(VacuumChart.class.getName()).log(Level.SEVERE, null, ex);
             }
-        };
-        Thread thread = new Thread(serialWorker);
-        thread.start();
+        }).start();
     }
 }

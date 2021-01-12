@@ -19,7 +19,7 @@ import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
-import nl.meulensteen.dennis.carbonbal_laptop.model.TimeValue;
+import nl.meulensteen.dennis.carbonbal_laptop.model.Settings;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -38,12 +38,13 @@ import org.jfree.data.xy.XYSeriesCollection;
 public class CalibrationChart extends JFrame implements ActionListener, PropertyChangeListener {
 
     private XYDataset dataset;
-
+    private int numSensors = 0;
+    
     public XYSeries series1 = new XYSeries(0);
     public XYSeries series2 = new XYSeries(1);
     public XYSeries series3 = new XYSeries(2);
     public XYSeries series4 = new XYSeries(3);
-
+    
     public CalibrationChart() {
         super("XY Step Chart");
         JPanel chartPanel = createChartPanel();
@@ -68,9 +69,12 @@ public class CalibrationChart extends JFrame implements ActionListener, Property
             }
         });
         
-         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-         Dispatcher.getInstance().addCalibrationChangeListener(this);
-         Dispatcher.getInstance().pollCalibrationChanges();
+        Settings settings = Dispatcher.getInstance().getSettings(); 
+        numSensors = settings.getCylinders();
+
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        Dispatcher.getInstance().addCalibrationChangeListener(this);
+        Dispatcher.getInstance().pollCalibration();
 
     }
 
@@ -122,19 +126,19 @@ public class CalibrationChart extends JFrame implements ActionListener, Property
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
         // sets paint color for each series
-        renderer.setSeriesPaint(0, Color.RED);
-        renderer.setSeriesPaint(1, Color.GREEN);
-        renderer.setSeriesPaint(2, Color.BLUE);
-        renderer.setSeriesPaint(2, Color.MAGENTA);
+        if(numSensors >=1) renderer.setSeriesPaint(0, Color.RED);
+        if(numSensors >=2) renderer.setSeriesPaint(1, Color.GREEN);
+        if(numSensors >=3) renderer.setSeriesPaint(2, Color.BLUE);
+        if(numSensors >=4) renderer.setSeriesPaint(2, Color.MAGENTA);
 
         // sets thickness for series (using strokes)
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < numSensors; i++) {
             renderer.setSeriesStroke(0, new BasicStroke(1.0f));
         }
 
         renderer.setDefaultLinesVisible(true);
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < numSensors; i++) {
             renderer.setSeriesShapesVisible(i, false);
         }
 
@@ -160,8 +164,7 @@ public class CalibrationChart extends JFrame implements ActionListener, Property
     @Override
     public void actionPerformed(final ActionEvent e) {
         final Double now = new Double(new Millisecond().getMillisecond());
-
-        //   this.series1.add(now, data1);
+        
         this.series2.add(now, (Double) 3.3);
         this.series3.add(now, (Double) 4.4);
         this.series4.add(now, (Double) 1.1);

@@ -18,6 +18,7 @@ import java.util.prefs.Preferences;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
+import nl.meulensteen.dennis.carbonbal_laptop.model.Settings;
 import nl.meulensteen.dennis.carbonbal_laptop.model.TimeValue;
 
 import org.jfree.chart.ChartPanel;
@@ -37,10 +38,10 @@ import org.jfree.data.general.DefaultValueDataset;
 public class MeterChart extends JFrame implements PropertyChangeListener {
     private CategoryDataset dataset;
     private DefaultValueDataset[] models = {null,null,null,null};
-
+    private int numSensors = 0;
+    private long lastInvocation = Instant.now().toEpochMilli();
     public Double data1;
-     private long lastInvocation = Instant.now().toEpochMilli();
-
+    
     public MeterChart() {
         super("Meter Chart");
         this.setLayout(new GridLayout());
@@ -65,15 +66,17 @@ public class MeterChart extends JFrame implements PropertyChangeListener {
             }
         });
 
-        
-        for (int i=0;i<4;i++) {
+       Settings settings = Dispatcher.getInstance().getSettings(); 
+       numSensors = settings.getCylinders();
+       
+        for (int i=0; i<numSensors; i++) {
             chartPanel[i] = createChartPanel(i);
             add(chartPanel[i], BorderLayout.CENTER);
         }
        
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
        
-        Dispatcher.getInstance().addChangeListener(this);
+        Dispatcher.getInstance().addVacuumChangeListener(this);
     }
 
     @Override
@@ -83,7 +86,7 @@ public class MeterChart extends JFrame implements PropertyChangeListener {
         
         List<TimeValue<Double>> newValues = (List<TimeValue<Double>>) event.getNewValue();
 
-        for (int i=0;i<4;i++) models[i].setValue(newValues.get(i).value);
+        for (int i=0;i<numSensors;i++) models[i].setValue(newValues.get(i).value);
         lastInvocation = Instant.now().toEpochMilli();
     }
 

@@ -79,7 +79,8 @@ public class VacuumChart extends JFrame implements ActionListener, PropertyChang
         series4.setMaximumItemCount(2001);
         
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        Dispatcher.getInstance().addIntegerChangeListener(this);
+        Dispatcher.getInstance().addIntVacuumChangeListener(this);
+        Dispatcher.getInstance().pollVacuum();
     }
 
     

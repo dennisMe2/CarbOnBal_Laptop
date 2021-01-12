@@ -78,7 +78,7 @@ public class SettingsChart extends JFrame implements PropertyChangeListener {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
        
         Dispatcher.getInstance().addSettingsChangeListener(this);
-        Dispatcher.getInstance().pollSettingsChanges();
+        Dispatcher.getInstance().pollSettings();
     }
 
     @Override
