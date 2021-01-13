@@ -150,13 +150,15 @@ public class Dispatcher {
     }
      
     private MessageType determineMessageType(byte[] delimitedMessage){
+       if(delimitedMessage.length < 3) return MessageType.ERROR;
+       
         switch (delimitedMessage[2]){
             case (byte) 0xE0:
                 return MessageType.CARB_VACUUM;
             case (byte) 0xE1:
                 return MessageType.CALIBRATION;
             case (byte) 0xE2:
-                return MessageType.SETTINGS;
+                return MessageType.SETTINGS;// bytes: -2 -3
             case (byte) 0xE3:
                 return MessageType.DIAGNOSTICS;
             case (byte) 0xE4:
@@ -167,6 +169,8 @@ public class Dispatcher {
     }
     
     public byte[] stripHeader(byte[] values){
+        if (values.length < 3) return new byte[] {(byte)0x00};
+        
         return Arrays.copyOfRange(values, 3, values.length);
     }
 

@@ -7,14 +7,10 @@ package nl.meulensteen.dennis.carbonbal_laptop.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.time.Instant;
 import java.util.List;
-import java.util.prefs.Preferences;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
 import static nl.meulensteen.dennis.carbonbal_laptop.model.EventType.SETTINGS;
@@ -29,7 +25,8 @@ import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 
-public class BarChart extends JFrame implements PropertyChangeListener {
+public class BarChart extends CarbOnBalDisplay implements PropertyChangeListener {
+    private static final String NAME = "Bar Chart";
     private CategoryDataset dataset;
     private DefaultCategoryDataset model;
     private int numSensors = 0;
@@ -41,7 +38,7 @@ public class BarChart extends JFrame implements PropertyChangeListener {
     public Double data1;
 
     public BarChart() {
-        super("Bar Chart");
+        super(NAME);
         
         Settings settings = Dispatcher.getInstance().getSettings();
         if(settings == null){
@@ -53,30 +50,10 @@ public class BarChart extends JFrame implements PropertyChangeListener {
         JPanel chartPanel = createChartPanel();
         add(chartPanel, BorderLayout.CENTER);
 
-        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
-        
-        this.setSize(Integer.valueOf(prefs.get("BAR_CHART_SCREEN_WIDTH", String.valueOf(640))), Integer.valueOf(prefs.get("BAR_CHART_SCREEN_HEIGHT", String.valueOf(480))));
-        this.setLocation(Integer.valueOf(prefs.get("BAR_CHART_SCREEN_X_POS", String.valueOf(320))), Integer.valueOf(prefs.get("BAR_CHART_SCREEN_Y_POS", String.valueOf(240)))); 
-    
-        this.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                prefs.put("BAR_CHART_SCREEN_WIDTH", String.valueOf(e.getComponent().getSize().width));
-                prefs.put("BAR_CHART_SCREEN_HEIGHT", String.valueOf(e.getComponent().getSize().height));
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent e) {
-                prefs.put("BAR_CHART_SCREEN_X_POS", String.valueOf(e.getComponent().getLocation().x));
-                prefs.put("BAR_CHART_SCREEN_Y_POS", String.valueOf(e.getComponent().getLocation().y));
-            }
-        });
-
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        createPreferences();
 
         Dispatcher.getInstance().addVacuumChangeListener(this);
         Dispatcher.getInstance().addSettingsChangeListener(this);
-        
     }
 
     @Override

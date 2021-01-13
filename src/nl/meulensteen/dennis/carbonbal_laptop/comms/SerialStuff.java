@@ -8,6 +8,7 @@ package nl.meulensteen.dennis.carbonbal_laptop.comms;
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortMessageListener;
+import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,7 @@ public class SerialStuff {
     }
     public boolean openSerialPort() throws InterruptedException {
         sp.setComPortParameters(230400, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
-        sp.setComPortTimeouts(SerialPort.TIMEOUT_SCANNER, 65535, 65535);
+        sp.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING,0,0);
         sp.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
         if (sp.openPort()) {
             System.out.println("Port is open, wait 1.5 S. for Arduino DTR reboot");
@@ -71,8 +72,7 @@ public class SerialStuff {
             System.out.println("Failed to open port :(");
             return false;
         }
-        
-        getVacuum(); //fire up the data acquisition loop
+        getSettings();
         
         return true;
     }
@@ -101,7 +101,7 @@ public class SerialStuff {
         }
     }
     
-    public final class ValuesListener implements SerialPortMessageListener {
+    public final class ValuesListener implements SerialPortMessageListenerWithExceptions {
        
         @Override
         public int getListeningEvents() {
@@ -121,6 +121,11 @@ public class SerialStuff {
         @Override
         public void serialEvent(SerialPortEvent event) {
             dispatcher.processNewValues( event.getReceivedData() );
+        }
+
+        @Override
+        public void catchException(Exception e) {
+            Logger.getLogger(SerialStuff.class.getName()).log(Level.SEVERE, null, e);
         }
     }
     

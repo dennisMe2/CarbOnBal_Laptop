@@ -10,13 +10,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
-import java.util.prefs.Preferences;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
 import nl.meulensteen.dennis.carbonbal_laptop.model.Settings;
@@ -35,59 +31,41 @@ import org.jfree.data.xy.XYSeriesCollection;
  *
  * @author dennis
  */
-public class CalibrationChart extends JFrame implements ActionListener, PropertyChangeListener {
+public class CalibrationChart extends CarbOnBalDisplay implements ActionListener, PropertyChangeListener {
 
+    private static final String NAME = "Calibration Chart";
     private XYDataset dataset;
     private int numSensors = 0;
-    
+
     public XYSeries series1 = new XYSeries(0);
     public XYSeries series2 = new XYSeries(1);
     public XYSeries series3 = new XYSeries(2);
     public XYSeries series4 = new XYSeries(3);
-    
+
     public CalibrationChart() {
-        super("XY Step Chart");
+        super(NAME);
         JPanel chartPanel = createChartPanel();
         add(chartPanel, BorderLayout.CENTER);
 
-        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+        createPreferences();
 
-        this.setSize(Integer.valueOf(prefs.get("STEP_CHART_SCREEN_WIDTH", String.valueOf(640))), Integer.valueOf(prefs.get("STEP_CHART_SCREEN_HEIGHT", String.valueOf(480))));
-        this.setLocation(Integer.valueOf(prefs.get("STEP_CHART_SCREEN_X_POS", String.valueOf(320))), Integer.valueOf(prefs.get("STEP_CHART_SCREEN_Y_POS", String.valueOf(240))));
-
-        this.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                prefs.put("STEP_CHART_SCREEN_WIDTH", String.valueOf(e.getComponent().getSize().width));
-                prefs.put("STEP_CHART_SCREEN_HEIGHT", String.valueOf(e.getComponent().getSize().height));
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent e) {
-                prefs.put("STEP_CHART_SCREEN_X_POS", String.valueOf(e.getComponent().getLocation().x));
-                prefs.put("STEP_CHART_SCREEN_Y_POS", String.valueOf(e.getComponent().getLocation().y));
-            }
-        });
-        
-        Settings settings = Dispatcher.getInstance().getSettings(); 
+        Settings settings = Dispatcher.getInstance().getSettings();
         numSensors = settings.getCylinders();
 
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         Dispatcher.getInstance().addCalibrationChangeListener(this);
         Dispatcher.getInstance().pollCalibration();
-
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         List<List<Integer>> newValues = (List<List<Integer>>) event.getNewValue();
-        for(int i=0;i<256;i++){
+        for (int i = 0; i < 256; i++) {
             this.series1.addOrUpdate(Double.valueOf(i), Double.valueOf(0.0));
             this.series2.addOrUpdate(Double.valueOf(i), newValues.get(i).get(1));
             this.series3.addOrUpdate(Double.valueOf(i), newValues.get(i).get(2));
             this.series4.addOrUpdate(Double.valueOf(i), newValues.get(i).get(3));
         }
-        
+
     }
 
     private JPanel createChartPanel() {
@@ -102,7 +80,7 @@ public class CalibrationChart extends JFrame implements ActionListener, Property
 
         ValueAxis xAxis = chart.getXYPlot().getDomainAxis();
         xAxis.setRange(Double.valueOf(0), Double.valueOf(256));
-     
+
         //xAxis.setFixedAutoRange(256);
         chart.getXYPlot().getRangeAxis().setRange(-32, 32);
 
@@ -126,10 +104,18 @@ public class CalibrationChart extends JFrame implements ActionListener, Property
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 
         // sets paint color for each series
-        if(numSensors >=1) renderer.setSeriesPaint(0, Color.RED);
-        if(numSensors >=2) renderer.setSeriesPaint(1, Color.GREEN);
-        if(numSensors >=3) renderer.setSeriesPaint(2, Color.BLUE);
-        if(numSensors >=4) renderer.setSeriesPaint(2, Color.MAGENTA);
+        if (numSensors >= 1) {
+            renderer.setSeriesPaint(0, Color.RED);
+        }
+        if (numSensors >= 2) {
+            renderer.setSeriesPaint(1, Color.GREEN);
+        }
+        if (numSensors >= 3) {
+            renderer.setSeriesPaint(2, Color.BLUE);
+        }
+        if (numSensors >= 4) {
+            renderer.setSeriesPaint(2, Color.MAGENTA);
+        }
 
         // sets thickness for series (using strokes)
         for (int i = 0; i < numSensors; i++) {
@@ -164,7 +150,7 @@ public class CalibrationChart extends JFrame implements ActionListener, Property
     @Override
     public void actionPerformed(final ActionEvent e) {
         final Double now = new Double(new Millisecond().getMillisecond());
-        
+
         this.series2.add(now, (Double) 3.3);
         this.series3.add(now, (Double) 4.4);
         this.series4.add(now, (Double) 1.1);

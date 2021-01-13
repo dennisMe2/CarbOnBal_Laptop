@@ -14,6 +14,8 @@ import nl.meulensteen.dennis.carbonbal_laptop.model.Settings;
 public class SettingsBuilder {
     
     public Settings get(byte[] values){
+        if(values.length < 4) return new Settings();
+        
         byte settingsVersion = values[0];
         
         if(settingsVersion >=28 && settingsVersion <=31){            

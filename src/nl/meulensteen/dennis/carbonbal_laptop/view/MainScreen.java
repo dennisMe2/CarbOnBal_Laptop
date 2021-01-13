@@ -9,15 +9,12 @@ import nl.meulensteen.dennis.carbonbal_laptop.comms.SerialStuff;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.DefaultComboBoxModel;
@@ -37,35 +34,18 @@ import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
 import nl.meulensteen.dennis.carbonbal_laptop.model.TimeValue;
 
 
-public class MainScreen extends JFrame implements ActionListener {
+public class MainScreen extends CarbOnBalDisplay implements ActionListener {
+    private static final String NAME = "Main Screen";
     JComboBox portList;
    
     
     public MainScreen() {
+        super(NAME);
         this.setSize(200, 700);
         this.setTitle("CarbOnBal Laptop");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
-        
-        this.setSize(Integer.valueOf(prefs.get("MAIN_SCREEN_WIDTH", String.valueOf(640))), Integer.valueOf(prefs.get("MAIN_SCREEN_HEIGHT", String.valueOf(480))));
-        this.setLocation(Integer.valueOf(prefs.get("MAIN_SCREEN_X_POS", String.valueOf(320))), Integer.valueOf(prefs.get("MAIN_SCREEN_Y_POS", String.valueOf(240)))); 
-    
-        this.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                prefs.put("MAIN_SCREEN_WIDTH", String.valueOf(e.getComponent().getSize().width));
-                prefs.put("MAIN_SCREEN_HEIGHT", String.valueOf(e.getComponent().getSize().height));
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent e) {
-                prefs.put("MAIN_SCREEN_X_POS", String.valueOf(e.getComponent().getLocation().x));
-                prefs.put("MAIN_SCREEN_Y_POS", String.valueOf(e.getComponent().getLocation().y));
-            }
-        });
-
-       
+        createPreferences();
 
         //Creating the MenuBar and adding components
         JMenuBar menuBar = new JMenuBar();

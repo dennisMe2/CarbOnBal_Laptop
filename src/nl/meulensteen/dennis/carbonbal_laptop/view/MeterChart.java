@@ -7,15 +7,11 @@ package nl.meulensteen.dennis.carbonbal_laptop.view;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.time.Instant;
 import java.util.List;
-import java.util.prefs.Preferences;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
 import nl.meulensteen.dennis.carbonbal_laptop.model.Settings;
@@ -35,58 +31,44 @@ import org.jfree.data.general.DefaultValueDataset;
  * @author www.codejava.net
  *
  */
-public class MeterChart extends JFrame implements PropertyChangeListener {
+public class MeterChart extends CarbOnBalDisplay implements PropertyChangeListener {
+    private static final String NAME = "Meter Chart";
     private CategoryDataset dataset;
-    private DefaultValueDataset[] models = {null,null,null,null};
+    private DefaultValueDataset[] models = {null, null, null, null};
     private int numSensors = 0;
     private long lastInvocation = Instant.now().toEpochMilli();
     public Double data1;
-    
+
     public MeterChart() {
-        super("Meter Chart");
+        super(NAME);
         this.setLayout(new GridLayout());
-        JPanel[] chartPanel = {null,null,null,null};
-        
-        Preferences prefs = Preferences.userNodeForPackage(this.getClass());
-        
-        this.setSize(Integer.valueOf(prefs.get("METER_CHART_SCREEN_WIDTH", String.valueOf(640))), Integer.valueOf(prefs.get("METER_CHART_SCREEN_HEIGHT", String.valueOf(480))));
-        this.setLocation(Integer.valueOf(prefs.get("METER_CHART_SCREEN_X_POS", String.valueOf(320))), Integer.valueOf(prefs.get("METER_CHART_SCREEN_Y_POS", String.valueOf(240)))); 
-    
-        this.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                prefs.put("METER_CHART_SCREEN_WIDTH", String.valueOf(e.getComponent().getSize().width));
-                prefs.put("METER_CHART_SCREEN_HEIGHT", String.valueOf(e.getComponent().getSize().height));
-            }
+        JPanel[] chartPanel = {null, null, null, null};
 
-            @Override
-            public void componentMoved(ComponentEvent e) {
-                prefs.put("METER_CHART_SCREEN_X_POS", String.valueOf(e.getComponent().getLocation().x));
-                prefs.put("METER_CHART_SCREEN_Y_POS", String.valueOf(e.getComponent().getLocation().y));
-            }
-        });
+        createPreferences();
 
-       Settings settings = Dispatcher.getInstance().getSettings(); 
-       numSensors = settings.getCylinders();
-       
-        for (int i=0; i<numSensors; i++) {
+        Settings settings = Dispatcher.getInstance().getSettings();
+        numSensors = settings.getCylinders();
+
+        for (int i = 0; i < numSensors; i++) {
             chartPanel[i] = createChartPanel(i);
             add(chartPanel[i], BorderLayout.CENTER);
         }
-       
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-       
+
         Dispatcher.getInstance().addVacuumChangeListener(this);
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         long differenceMilliseconds = Instant.now().toEpochMilli() - lastInvocation;
-        if(differenceMilliseconds < 4) return;
-        
+        if (differenceMilliseconds < 4) {
+            return;
+        }
+
         List<TimeValue<Double>> newValues = (List<TimeValue<Double>>) event.getNewValue();
 
-        for (int i=0;i<numSensors;i++) models[i].setValue(newValues.get(i).value);
+        for (int i = 0; i < numSensors; i++) {
+            models[i].setValue(newValues.get(i).value);
+        }
         lastInvocation = Instant.now().toEpochMilli();
     }
 
@@ -95,13 +77,12 @@ public class MeterChart extends JFrame implements PropertyChangeListener {
 
         models[i] = new DefaultValueDataset(00.0);
         MeterPlot plot = new MeterPlot(models[i]);
-        plot.setRange(new Range(0.00,1030.00));
-        
+        plot.setRange(new Range(0.00, 1030.00));
+
         JFreeChart chart = new JFreeChart(chartTitle,
                 JFreeChart.DEFAULT_TITLE_FONT, plot, false);
-        
+
         return new ChartPanel(chart);
     }
-
 
 }
