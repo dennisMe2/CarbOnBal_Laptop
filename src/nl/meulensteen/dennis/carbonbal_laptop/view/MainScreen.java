@@ -165,7 +165,12 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
         this.getContentPane().add(BorderLayout.CENTER, centerText);
         this.setVisible(true);
         
-      
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                SerialStuff.getInstance().closeSerialPort();
+            }
+        });
     }
     
     @Override

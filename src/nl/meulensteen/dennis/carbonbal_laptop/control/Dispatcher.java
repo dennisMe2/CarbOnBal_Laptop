@@ -151,8 +151,9 @@ public class Dispatcher {
      
     private MessageType determineMessageType(byte[] delimitedMessage){
        if(delimitedMessage.length < 3) return MessageType.ERROR;
+       byte typeDescriptor = getMessageTypeDescriptor(delimitedMessage);
        
-        switch (delimitedMessage[2]){
+        switch (typeDescriptor){
             case (byte) 0xE0:
                 return MessageType.CARB_VACUUM;
             case (byte) 0xE1:
@@ -168,16 +169,21 @@ public class Dispatcher {
         }
     }
     
-    public byte[] stripHeader(byte[] values){
+    private byte getMessageTypeDescriptor(byte[] message){
+        int length = message[message.length-3];
+        return message[message.length-4 -length];
+    }
+    
+    public byte[] stripHeaderAndFooter(byte[] values){
         if (values.length < 3) return new byte[] {(byte)0x00};
         
-        return Arrays.copyOfRange(values, 3, values.length);
+        return Arrays.copyOfRange(values, 1, values.length-3);
     }
 
     public void processNewValues(byte[] delimitedMessage) {
         
         MessageType messageType = determineMessageType(delimitedMessage);
-        byte[] values = stripHeader(delimitedMessage);
+        byte[] values = stripHeaderAndFooter(delimitedMessage);
         
         switch(messageType.name()){
             case ("CARB_VACUUM"):
@@ -220,6 +226,7 @@ public class Dispatcher {
         calibrationValues.add(dataPoint);
         if(calibrationValues.size() == 256){
             notifyCalibrationListeners(CALIBRATION.getValue(), calibrationValues, calibrationValues);
+            calibrationValues = new ArrayList<>();
         }
     }
     

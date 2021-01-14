@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration>
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <param name="target" value="System.err"/>
+        <param name="immediateFlush" value="true"/>
+        <param name="encoding" value="UTF-8"/>
+        <param name="threshold" value="trace"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="conversionPattern" value="%d [%t] %-5p %c - %m%n"/>
+        </layout>
+    </appender>
+ 
+    <logger name="nl.meulensteen.dennis.carbonbal_laptop.comms.SerialStuff">
+        <level value="trace"/>
+        <appender-ref ref="console"/>
+    </logger>
+ 
+    <root>
+        <priority value ="trace" />
+        <appender-ref ref="console"/>
+    </root>
+</log4j:configuration>
