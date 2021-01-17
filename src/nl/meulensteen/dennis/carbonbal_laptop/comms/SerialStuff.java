@@ -59,6 +59,8 @@ public class SerialStuff {
         return portList;
     }
     public boolean openSerialPort() throws InterruptedException {
+        if(sp == null) return false;
+        
         sp.setComPortParameters(230400, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
         sp.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING,0,0);
         sp.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
@@ -80,6 +82,7 @@ public class SerialStuff {
     }
 
     public void getSettings(){
+        if(sp == null) return;
         try {
             sp.getOutputStream().write(SETTINGS.getCommand()); //go to settings data dump mode
         } catch (IOException ex) {
@@ -88,6 +91,7 @@ public class SerialStuff {
     }
     
     public void getCalibration(){
+        if(sp == null) return;
            try {
             sp.getOutputStream().write(CALIBRATION.getCommand()); //go to calibration data dump mode
         } catch (IOException ex) {
@@ -96,6 +100,8 @@ public class SerialStuff {
     }
     
     public void getVacuum(){
+        if(sp == null) return;
+        
            try {
             sp.getOutputStream().write(VACUUM.getCommand()); //go to vacuum data dump mode
         } catch (IOException ex) {
@@ -104,7 +110,7 @@ public class SerialStuff {
     }
 
     public void closeSerialPort() {
-        sp.closePort();
+        if(sp != null) sp.closePort();
     }
     
     public final class ValuesListener implements SerialPortMessageListenerWithExceptions {

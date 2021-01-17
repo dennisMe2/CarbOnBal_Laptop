@@ -23,7 +23,7 @@ public class Utils {
     }
         
     public static TimeValue[] getAveragedTimeValues(int counter, List<Double> averages) {
-        Double now = Double.valueOf(counter);
+        Double now = (double) counter;
 
         TimeValue[] tuples = {new TimeValue(now, averages.get(0)), new TimeValue(now, averages.get(1)),
             new TimeValue(now, averages.get(2)), new TimeValue(now, averages.get(3))};
@@ -33,10 +33,10 @@ public class Utils {
     public static List<TimeValue<Integer>> getRawTimeValues(Integer counter, List<Integer> averages) {
         List<TimeValue<Integer>> tuples = new ArrayList(4);
         
-        tuples.add(new TimeValue<Integer>(counter, averages.get(0)));
-        tuples.add(new TimeValue<Integer>(counter, averages.get(1)));
-        tuples.add(new TimeValue<Integer>(counter, averages.get(2)));
-        tuples.add(new TimeValue<Integer>(counter, averages.get(3)));
+        tuples.add(new TimeValue<>(counter, averages.get(0)));
+        tuples.add(new TimeValue<>(counter, averages.get(1)));
+        tuples.add(new TimeValue<>(counter, averages.get(2)));
+        tuples.add(new TimeValue<>(counter, averages.get(3)));
     
         return tuples;
     }

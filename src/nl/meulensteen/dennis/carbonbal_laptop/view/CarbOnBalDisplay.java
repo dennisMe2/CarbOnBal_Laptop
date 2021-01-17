@@ -5,10 +5,16 @@
  */
 package nl.meulensteen.dennis.carbonbal_laptop.view;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeListener;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
+import javax.swing.Timer;
+import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
 
 /**
  *
@@ -16,10 +22,15 @@ import javax.swing.JFrame;
  */
 public class CarbOnBalDisplay extends JFrame {
     private final String name;
+    private PropertyChangeListener myListener;
     
     CarbOnBalDisplay(String title){
         super(title);
         this.name = title;       
+    }
+    
+    void setListener( PropertyChangeListener listener){
+        myListener = listener;
     }
     
     void createPreferences(){
@@ -43,5 +54,20 @@ public class CarbOnBalDisplay extends JFrame {
         });
         
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+    
+    @Override
+    protected void processWindowEvent(WindowEvent e) {
+        if (e.getID() == WindowEvent.WINDOW_CLOSING) {
+            Dispatcher.getInstance().removeMeFromListeners(myListener);
+            Timer timer = new Timer(1000, (ActionEvent e1) -> {
+                dispose();
+            });
+            timer.setRepeats(false);
+            timer.start();
+            super.processWindowEvent(e); 
+        } else {        
+            super.processWindowEvent(e); 
+        }
     }
 }

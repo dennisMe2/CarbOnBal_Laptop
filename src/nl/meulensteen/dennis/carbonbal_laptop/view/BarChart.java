@@ -52,6 +52,7 @@ public class BarChart extends CarbOnBalDisplay implements PropertyChangeListener
 
         createPreferences();
 
+        setListener(this);
         Dispatcher.getInstance().addVacuumChangeListener(this);
         Dispatcher.getInstance().addSettingsChangeListener(this);
     }

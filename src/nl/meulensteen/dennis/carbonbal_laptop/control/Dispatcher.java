@@ -10,6 +10,8 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.swing.SwingUtilities;
+import lombok.extern.log4j.Log4j;
 import nl.meulensteen.dennis.carbonbal_laptop.comms.SerialStuff;
 import static nl.meulensteen.dennis.carbonbal_laptop.control.Utils.calculateAverages;
 import static nl.meulensteen.dennis.carbonbal_laptop.control.Utils.parseValues;
@@ -25,6 +27,7 @@ import nl.meulensteen.dennis.carbonbal_laptop.model.TimeValue;
  *
  * @author dennis
  */
+@Log4j
 public class Dispatcher {
 
     private static Dispatcher instance;
@@ -92,19 +95,39 @@ public class Dispatcher {
         rpmListeners.add(newListener);
     }
     
+    public void removeMeFromListeners(PropertyChangeListener uninterestedListener){
+        if(null == uninterestedListener) return;
+        
+        rpmListeners.remove(uninterestedListener);
+        integerListeners.remove(uninterestedListener);
+        listeners.remove(uninterestedListener);
+        calibrationListeners.remove(uninterestedListener);
+        settingsListeners.remove(uninterestedListener);
+        log.info("listener removed:" + uninterestedListener.getClass().getSimpleName());
+    }
+    
     public void pollVacuum(){
         SerialStuff.getInstance().getVacuum();
     }
     
     private void notifyVacuumListeners(String property, List<TimeValue<Double>> oldValues, List<TimeValue<Double>> newValues) {
         for (PropertyChangeListener name : listeners) {
-            name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                   name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
+               }
+            });
+            
         }
     }
 
     private void notifyIntVacuumListeners(String property, List<TimeValue<Integer>> oldValues, List<TimeValue<Integer>> newValues) {
         for (PropertyChangeListener name : integerListeners) {
-            name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                   name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
+               }
+            });
         }
     }
     
@@ -124,7 +147,11 @@ public class Dispatcher {
     
     private void notifySettingsListeners(String property, Settings oldValues, Settings newValues) {
         for (PropertyChangeListener name : settingsListeners) {
-            name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                   name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
+               }
+            });
         }
     }
     
@@ -139,13 +166,21 @@ public class Dispatcher {
     
      private void notifyCalibrationListeners(String property, List<List<Integer>> oldValues, List<List<Integer>> newValues) {
         for (PropertyChangeListener name : calibrationListeners) {
-            name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
+             SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                   name.propertyChange(new PropertyChangeEvent(this, property, oldValues, newValues));
+               }
+            });
         }
     }
     
      private void notifyRpmListeners(String property, Double oldValue, Double newValue) {
         for (PropertyChangeListener name : rpmListeners) {
-            name.propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                   name.propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
+               }
+            });
         }
     }
      
@@ -171,7 +206,11 @@ public class Dispatcher {
     
     private byte getMessageTypeDescriptor(byte[] message){
         int length = message[message.length-3];
-        return message[message.length-4 -length];
+        int reportedSize = message.length-4 -length;
+        if(reportedSize >=0 && reportedSize<message.length){
+            return message[reportedSize];
+        }
+        return 0x00;
     }
     
     public byte[] stripHeaderAndFooter(byte[] values){
@@ -203,10 +242,7 @@ public class Dispatcher {
                 break;
             default:
                 System.out.println("Unrecognized packet error");
-                
         }
-        
-        
     }
     
      private void processSettingsValues(byte[] newRawValues) {
