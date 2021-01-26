@@ -21,7 +21,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.MeterPlot;
 import org.jfree.data.Range;
-import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.general.DefaultValueDataset;
 
 /**
@@ -32,8 +31,8 @@ import org.jfree.data.general.DefaultValueDataset;
  *
  */
 public class MeterChart extends CarbOnBalDisplay implements PropertyChangeListener {
+
     private static final String NAME = "Meter Chart";
-    private CategoryDataset dataset;
     private DefaultValueDataset[] models = {null, null, null, null};
     private int numSensors = 0;
     private long lastInvocation = Instant.now().toEpochMilli();
@@ -78,7 +77,7 @@ public class MeterChart extends CarbOnBalDisplay implements PropertyChangeListen
         models[i] = new DefaultValueDataset(00.0);
         MeterPlot plot = new MeterPlot(models[i]);
         plot.setRange(new Range(0.00, 1030.00));
-
+        plot.setTickSize(100);
         JFreeChart chart = new JFreeChart(chartTitle,
                 JFreeChart.DEFAULT_TITLE_FONT, plot, false);
 

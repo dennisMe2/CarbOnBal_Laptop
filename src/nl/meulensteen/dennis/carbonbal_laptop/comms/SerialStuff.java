@@ -102,7 +102,7 @@ public class SerialStuff {
     public void getVacuum(){
         if(sp == null) return;
         
-           try {
+        try {
             sp.getOutputStream().write(VACUUM.getCommand()); //go to vacuum data dump mode
         } catch (IOException ex) {
             log.error( ex.getMessage());

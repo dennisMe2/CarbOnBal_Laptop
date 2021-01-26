@@ -53,6 +53,7 @@ public class SettingsChart extends CarbOnBalDisplay implements PropertyChangeLis
             }
 
             model.fireTableDataChanged();
+            pack();
         }
     }
 

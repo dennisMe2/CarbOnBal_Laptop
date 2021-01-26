@@ -30,7 +30,7 @@ import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
 import nl.meulensteen.dennis.carbonbal_laptop.view.actions.SaveAction;
 
 @Log4j
-public class MainScreen extends CarbOnBalDisplay implements ActionListener {
+public class MainScreen extends CarbOnBalDisplay implements ActionListener, ParentWindowListener {
 
     protected JMenuItem menuItemStartRecording,
             menuItemStopRecording,
@@ -61,8 +61,8 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
 
     private static final String NAME = "Main Screen";
     JComboBox portList;
-
-    public MainScreen() {
+      
+    public MainScreen(){
         super(NAME);
         this.setSize(200, 700);
         this.setTitle("CarbOnBal Laptop");
@@ -127,7 +127,7 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
         menuDisplay.add(menuItemRpm);
         menuDisplay.add(menuItemSettings);
 
-        menuItemStartRecording.setEnabled(true);
+        menuItemStartRecording.setEnabled(false);
         menuItemStopRecording.setEnabled(false);
         menuItemClearRecording.setEnabled(false);
         menuItemSaveRecordingAs.setEnabled(false);
@@ -151,6 +151,8 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
             startSerialComms();
             connectButton.setEnabled(false);
             disconnectButton.setEnabled(true);
+            recordButton.setEnabled(true);
+            menuItemStartRecording.setEnabled(true);
         });
 
         toolbar.add(connectButton);
@@ -185,22 +187,26 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
         recordButton = makeButton("Start Recording",
                 "icons/32x32/media-record.png",
                 "Record data capture");
+        recordButton.setEnabled(false);
         toolbar.add(recordButton);
 
         stopButton = makeButton("Stop Recording",
                 "icons/32x32/media-playback-stop.png",
                 "Stop recording data capture");
+        stopButton.setEnabled(false);
         toolbar.add(stopButton);
 
         clearButton = makeButton("Clear Recording",
                 "icons/32x32/edit-clear.png",
                 "Clear recorded data capture");
+        clearButton.setEnabled(false);
         toolbar.add(clearButton);
 
         saveAsButton = makeButton("",
                 "icons/32x32/document-save-as.png",
                 "Save data capture as...");
         saveAsButton.addActionListener(new SaveAction(this, "Save As"));
+        saveAsButton.setEnabled(false);
         toolbar.add(saveAsButton);
 
         saveAsButton.setEnabled(false);
@@ -231,11 +237,12 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
             if (menuItemPlot.isSelected()) {
                 SwingUtilities.invokeLater(() -> {
                     chart = new VacuumChart();
+                    chart.setParentWindowListener(this);
                     chart.setVisible(true);
                 });
             } else {
                 SwingUtilities.invokeLater(() -> {
-                    chart.dispose();
+                    if(null != chart) chart.dispose();
                 });
             }
         }
@@ -243,11 +250,12 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
             if (menuItemBar.isSelected()) {
                 SwingUtilities.invokeLater(() -> {
                     barChart = new BarChart();
+                    barChart.setParentWindowListener(this);
                     barChart.setVisible(true);
                 });
             } else {
                 SwingUtilities.invokeLater(() -> {
-                    barChart.dispose();
+                    if(null != barChart) barChart.dispose();
                 });
             }
         }
@@ -256,11 +264,12 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
             if (menuItemGuage.isSelected()) {
                 SwingUtilities.invokeLater(() -> {
                     guageChart = new MeterChart();
+                    guageChart.setParentWindowListener(this);
                     guageChart.setVisible(true);
                 });
             } else {
                 SwingUtilities.invokeLater(() -> {
-                    guageChart.dispose();
+                    if(null != guageChart) guageChart.dispose();
                 });
             }
         }
@@ -269,11 +278,12 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
             if (menuItemCalibration.isSelected()) {
                 SwingUtilities.invokeLater(() -> {
                     calibrationChart = new CalibrationChart();
+                    calibrationChart.setParentWindowListener(this);
                     calibrationChart.setVisible(true);
                 });
             } else {
                 SwingUtilities.invokeLater(() -> {
-                    calibrationChart.dispose();
+                    if(null != calibrationChart) calibrationChart.dispose();
                 });
             }
         }
@@ -282,11 +292,12 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
             if (menuItemRpm.isSelected()) {
                 SwingUtilities.invokeLater(() -> {
                     rpmChart = new RpmChart();
+                    rpmChart.setParentWindowListener(this);
                     rpmChart.setVisible(true);
                 });
             } else {
                 SwingUtilities.invokeLater(() -> {
-                    rpmChart.dispose();
+                    if(null != rpmChart) rpmChart.dispose();
                 });
             }
         }
@@ -294,18 +305,21 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
         if (cmd.equals("Settings")) {
             if (menuItemSettings.isSelected()) {
                 SwingUtilities.invokeLater(() -> {
-                    SettingsChart settingsChart = new SettingsChart();
+                    settingsChart = new SettingsChart();
+                    settingsChart.setParentWindowListener(this);
                     settingsChart.setVisible(true);
                 });
             } else {
                 SwingUtilities.invokeLater(() -> {
-                    settingsChart.dispose();
+                    if(null != settingsChart) settingsChart.dispose();
                 });
             }
         }
 
         if (cmd.equals("Connect CarbOnBal")) {
             startSerialComms();
+            recordButton.setEnabled(true);
+            menuItemStartRecording.setEnabled(true);
         }
 
         if (cmd.equals("Start Recording")) {
@@ -369,13 +383,6 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
         return newButton;
     }
 
-    private JButton makeTextButton(String text, String actionCommand, String toolTip) {
-        JButton newButton = new JButton(text);
-        newButton.setActionCommand(actionCommand);
-        newButton.setToolTipText(toolTip);
-        return newButton;
-    }
-
     private void startSerialComms() {
         new Thread(() -> {
             try {
@@ -391,5 +398,15 @@ public class MainScreen extends CarbOnBalDisplay implements ActionListener {
         new Thread(() -> {
             SerialStuff.getInstance().closeSerialPort();
         }).start();
+    }
+
+    @Override
+    public void notifyWindowClosing(String name) {
+        if(null != chart && name.equals(chart.getName())) menuItemPlot.setSelected(false);
+        if(null != barChart && name.equals(barChart.getName())) menuItemBar.setSelected(false);
+        if(null != rpmChart && name.equals(rpmChart.getName())) menuItemRpm.setSelected(false);
+        if(null != settingsChart && name.equals(settingsChart.getName())) menuItemSettings.setSelected(false);
+        if(null != guageChart && name.equals(guageChart.getName())) menuItemGuage.setSelected(false);
+        if(null != calibrationChart && name.equals(calibrationChart.getName())) menuItemCalibration.setSelected(false);
     }
 }

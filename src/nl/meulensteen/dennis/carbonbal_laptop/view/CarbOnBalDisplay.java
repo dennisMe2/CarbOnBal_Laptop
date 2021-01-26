@@ -6,7 +6,6 @@
 package nl.meulensteen.dennis.carbonbal_laptop.view;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowEvent;
@@ -21,12 +20,21 @@ import nl.meulensteen.dennis.carbonbal_laptop.control.Dispatcher;
  * @author dennis
  */
 public class CarbOnBalDisplay extends JFrame {
-    private final String name;
+    private static String name;
     private PropertyChangeListener myListener;
+    private ParentWindowListener parent;
     
     CarbOnBalDisplay(String title){
         super(title);
-        this.name = title;       
+        CarbOnBalDisplay.name = title;
+    }
+    
+    public String getName(){
+        return name;
+    }
+    
+    void setParentWindowListener(ParentWindowListener parent){
+        this.parent = parent;
     }
     
     void setListener( PropertyChangeListener listener){
@@ -60,6 +68,7 @@ public class CarbOnBalDisplay extends JFrame {
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             Dispatcher.getInstance().removeMeFromListeners(myListener);
+            if(null != parent) parent.notifyWindowClosing(name);
             Timer timer = new Timer(1000, (ActionEvent e1) -> {
                 dispose();
             });

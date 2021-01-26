@@ -105,7 +105,7 @@ public class Dispatcher {
         settingsListeners.remove(uninterestedListener);
         log.info("listener removed:" + uninterestedListener.getClass().getSimpleName());
     }
-    
+       
     public void pollVacuum(){
         SerialStuff.getInstance().getVacuum();
     }
